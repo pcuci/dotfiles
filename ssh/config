@@ -1,0 +1,29 @@
+Host ubisoft
+  HostName localhost
+  ProxyJump primary 
+  Port 22222
+  User pcuciureanu
+  IdentityFile ~/.ssh/id_rsa_home
+  ForwardX11 yes
+
+Host work
+  HostName localhost
+  ProxyJump ubisoft
+  #User pcuciureanu
+  User paul
+  Port 33333
+  IdentityFile ~/.ssh/id_rsa_mtl-bj201
+  ProxyCommand ssh -W %h:%p
+  ForwardX11 yes
+
+Host router
+  HostName 192.168.1.1
+  User root
+  IdentityFile ~/.ssh/id_rsa
+
+Host * 
+  HostName %h.lan
+  User paul
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_rsa
+

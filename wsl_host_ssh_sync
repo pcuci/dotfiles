@@ -1,0 +1,11 @@
+#!/bin/bash
+
+HOST_SSH_DIR="/mnt/c/Users/pcuci/.ssh/"
+WSL_SSH_DIR="/home/paul/.ssh/"
+
+cp $HOST_SSH_DIR/id_rsa* $WSL_SSH_DIR
+
+chmod 600 $WSL_SSH_DIR/id_rsa*
+chmod g+r,o+r $WSL_SSH_DIR/*.pub
+
+cp $HOST_SSH_DIR/config $WSL_SSH_DIR
