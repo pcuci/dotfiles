@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 HOST_SSH_DIR="/mnt/c/Users/pcuci/.ssh/"
 WSL_SSH_DIR="/home/paul/.ssh/"

@@ -21,7 +21,7 @@ Host router
   User root
   IdentityFile ~/.ssh/id_rsa
 
-Host * 
+Host primary node1 node2 
   HostName %h.lan
   User paul
   AddKeysToAgent yes
