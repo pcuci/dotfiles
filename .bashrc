@@ -121,4 +121,3 @@ export PATH=$PATH:~/bin/
 export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
 
 eval `keychain --eval --agents ssh id_rsa`
-

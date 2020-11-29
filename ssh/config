@@ -1,6 +1,6 @@
 Host ubisoft
   HostName localhost
-  ProxyJump primary 
+  ProxyJump primary
   Port 22222
   User pcuciureanu
   IdentityFile ~/.ssh/id_rsa_home
@@ -21,7 +21,7 @@ Host router
   User root
   IdentityFile ~/.ssh/id_rsa
 
-Host primary node1 node2 
+Host primary node1 node2
   HostName %h.lan
   User paul
   AddKeysToAgent yes
