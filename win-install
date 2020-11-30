@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+cp ./.profile ~/.profile
+cp .bashrc ~/.bashrc
+cp .bash_logout ~/.bash_logout
+cp .bash_aliases ~/.bash_aliases
+cp .gitconfig ~/.gitconfig
+cp .gitignore_global ~/.gitignore_global
+
+echo 'everything copied over, no symlinks'
