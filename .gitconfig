@@ -2,3 +2,6 @@
 	email = paul@cuciureanu.com
 	name = Paul Cuciureanu
 	signingkey = 34174D23F04CE669
+[core]
+	autocrlf = false
+	eol = lf
