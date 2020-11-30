@@ -8,6 +8,16 @@ DOTBOT_DIR="dotbot"
 DOTBOT_BIN="bin/dotbot"
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# prep custom tooling
+rm -rf ../.oh-my-bash && rm -f ~/.bashrc.pre-oh-my-bash
+
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" &
+wait $!
+
+cp ~/.bashrc ./oh-my-bashrc.original && rm -f ~/.bashrc
+cat oh-my-bashrc my-bashrc > .bashrc
+# end custom prep
+
 cd "${BASEDIR}"
 git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
 git submodule update --init --recursive "${DOTBOT_DIR}"
