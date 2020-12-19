@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-HOST_SSH_DIR="/mnt/c/Users/pcuci/.ssh/"
-WSL_SSH_DIR="/home/paul/.ssh/"
+HOST_SSH_DIR="/mnt/c/Users/pcuci/.ssh"
+WSL_SSH_DIR="/home/paul/.ssh"
 
-cp $HOST_SSH_DIR/id_rsa* $WSL_SSH_DIR
+cp $HOST_SSH_DIR/id_* $WSL_SSH_DIR
 
-chmod 600 $WSL_SSH_DIR/id_rsa*
+chmod 600 $WSL_SSH_DIR/id_*
 chmod g+r,o+r $WSL_SSH_DIR/*.pub
 
-cp $HOST_SSH_DIR/config $WSL_SSH_DIR
+# pick which way to sync config
+#cp $HOST_SSH_DIR/config $WSL_SSH_DIR
+#cp $WSL_SSH_DIR/config $HOST_SSH_DIR 
