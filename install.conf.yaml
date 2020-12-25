@@ -11,6 +11,9 @@
     ~/.bash_aliases: .bash_aliases
     ~/.gitconfig: .gitconfig
     ~/.gitignore_global: .gitignore_global
+    ~/.local/bin/winhost.sh:
+      create: true
+      path: bin/winhost.sh
     ~/.ssh/config:
         path: ssh/config
         create: true
