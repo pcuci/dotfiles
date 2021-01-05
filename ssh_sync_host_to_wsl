@@ -8,6 +8,4 @@ cp $HOST_SSH_DIR/id_* $WSL_SSH_DIR
 chmod 600 $WSL_SSH_DIR/id_*
 chmod g+r,o+r $WSL_SSH_DIR/*.pub
 
-# pick which way to sync config
-#cp $HOST_SSH_DIR/config $WSL_SSH_DIR
-#cp $WSL_SSH_DIR/config $HOST_SSH_DIR 
+cp $HOST_SSH_DIR/config $WSL_SSH_DIR
