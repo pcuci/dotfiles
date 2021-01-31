@@ -2,3 +2,7 @@
 	path = dotbot
 	url = https://github.com/anishathalye/dotbot
 	ignore = dirty
+[submodule "complete-alias"]
+	path = complete-alias
+	url = git@github.com:cykerway/complete-alias.git
+	branch = master

@@ -3,12 +3,13 @@
 set -e
 
 CONFIG="install.conf.yaml"
-DOTBOT_DIR="dotbot"
+DIR_DOTBOT="dotbot"
+DIR_COMPLETE_ALIAS="complete-alias"
 
 DOTBOT_BIN="bin/dotbot"
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# prep custom tooling
+# install Oh My Bash
 rm -rf ../.oh-my-bash && rm -f ~/.bashrc.pre-oh-my-bash
 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" &
@@ -16,10 +17,18 @@ wait $!
 
 cp ~/.bashrc ./oh-my-bashrc.original && rm -f ~/.bashrc
 cat oh-my-bashrc my-bashrc > .bashrc
+
+# Install custom alias
+cd "${BASEDIR}"
+git -C "${DIR_COMPLETE_ALIAS}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DIR_COMPLETE_ALIAS}"
+
+cat ${DIR_COMPLETE_ALIAS}/complete_alias my-complete-alias > .bash_completion
+
 # end custom prep
 
 cd "${BASEDIR}"
-git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
-git submodule update --init --recursive "${DOTBOT_DIR}"
+git -C "${DIR_DOTBOT}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DIR_DOTBOT}"
 
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"
+"${BASEDIR}/${DIR_DOTBOT}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"

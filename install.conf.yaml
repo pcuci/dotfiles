@@ -9,6 +9,7 @@
     ~/.bashrc: .bashrc
     ~/.bash_logout: .bash_logout
     ~/.bash_aliases: .bash_aliases
+    ~/.bash_completion: .bash_completion
     ~/.gitconfig: .gitconfig
     ~/.gitignore_global: .gitignore_global
     ~/.local/bin/winhost.sh:
