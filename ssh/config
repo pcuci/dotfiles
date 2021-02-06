@@ -1,15 +1,23 @@
 Host ubisoft
   HostName localhost
-  ProxyJump primary
+  ProxyJump jump 
   Port 22222
   User pcuciureanu
   IdentityFile ~/.ssh/id_rsa_home
+  ProxyCommand ssh -W %h:%p
   ForwardX11 yes
+
+# use primary.lan as jump host
+Host jump 
+  HostName primary.lan
+  User paul
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_ed25519
 
 Host work
   HostName localhost
   ProxyJump ubisoft
-  #User pcuciureanu
   User paul
   Port 33333
   IdentityFile ~/.ssh/id_rsa_mtl-bj201
