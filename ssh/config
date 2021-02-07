@@ -7,7 +7,6 @@ Host ubisoft
   ProxyCommand ssh -W %h:%p
   ForwardX11 yes
 
-# use primary.lan as jump host
 Host jump 
   HostName primary.lan
   User paul
@@ -39,3 +38,14 @@ Host primary node1 node2
   LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://github.com/pcuci/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./install))"
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
+
+Host mk8s 
+  HostName %h.lan
+  User ubuntu 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://github.com/pcuci/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_ed25519
+
