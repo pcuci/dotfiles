@@ -3,6 +3,7 @@ export WIN_IP=`cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2`
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:~/.pulumi/bin
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export PATH=$PATH:~/.linkerd2/bin
 
 export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
 
