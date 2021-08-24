@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+echo stopping...
+docker stop docker-dind # stop running daemon
+echo removing...
+docker rm docker-dind # delete before rerunning with modified arguments
+

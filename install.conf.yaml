@@ -12,6 +12,12 @@
     ~/.bash_completion: .bash_completion
     ~/.gitconfig: .gitconfig
     ~/.gitignore_global: .gitignore_global
+    ~/.local/bin/dockerd-start:
+      create: true
+      path: bin/dockerd-start
+    ~/.local/bin/dockerd-rm:
+      create: true
+      path: bin/dockerd-rm
     ~/.local/bin/winhost.sh:
       create: true
       path: bin/winhost.sh

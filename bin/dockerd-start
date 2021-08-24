@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+if [ "$( docker container inspect -f '{{.State.Status}}' docker-dind )" = "running" ]
+then
+  exit 0
+else
+  docker run --privileged --name docker-dind -d -e DOCKER_TLS_CERTDIR="" -p 23750:2375 docker:dind --insecure-registry registry.lan:32000 --tls=false
+
+  fifo=/tmp/tmpfifo.$$
+  mkfifo "${fifo}" || exit 1
+  (docker logs -f docker-dind 2>&1 &) >${fifo} &
+  dockerlogspid=$! # optional
+  grep -m 1 "API listen.*2375" "${fifo}"
+  kill "${dockerlogspid}" # optional
+  rm "${fifo}"
+fi
