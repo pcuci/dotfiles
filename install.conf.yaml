@@ -24,6 +24,9 @@
     ~/.ssh/config:
         path: ssh/config
         create: true
+    ~/.ssh/config.d:
+        path: ssh/config.d
+        create: true
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
