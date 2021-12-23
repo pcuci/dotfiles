@@ -1,4 +1,4 @@
-Host primary node1 node2
+Host node0 node1 node2
   HostName %h.lan
   User paul
   AddKeysToAgent yes
