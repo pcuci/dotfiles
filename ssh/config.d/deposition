@@ -1,4 +1,4 @@
-Host node0 node1 node2
+Host backup0 node0 node1 node2 node3
   HostName %h.lan
   User paul
   AddKeysToAgent yes
