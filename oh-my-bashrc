@@ -64,6 +64,7 @@ completions=(
   system
   tmux
   todo
+  vault
 )
 
 # Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
@@ -79,12 +80,17 @@ aliases=(
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git
-  bashmarks
   ansible
   aws
-  gitnpm
-  nameserverkubectl
+  bashmarks
+  git
+  goenv
+  golang
+  kubectl
+  npm
+  nvm
+  progress
+  pyenv
 )
 
 source $OSH/oh-my-bash.sh
