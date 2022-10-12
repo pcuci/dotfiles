@@ -1,6 +1,6 @@
-Host miti-node0
-  HostName 192.168.0.10 
-  User ubuntu 
+Host mighty-vnode0
+  HostName 192.168.9.10
+  User ubuntu
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
@@ -8,9 +8,9 @@ Host miti-node0
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
-Host miti-node1
-  HostName 192.168.0.11 
-  User ubuntu 
+Host mighty-vnode1
+  HostName 192.168.9.11
+  User ubuntu
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
@@ -18,9 +18,9 @@ Host miti-node1
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
-Host miti-node2
-  HostName 192.168.0.12 
-  User ubuntu 
+Host mighty-vnode2
+  HostName 192.168.9.12
+  User ubuntu
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
@@ -28,9 +28,9 @@ Host miti-node2
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
-Host miti-omega
-  HostName 192.168.0.20
-  User ubuntu 
+Host mighty-vmk8s
+  HostName 192.168.9.20
+  User ubuntu
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
@@ -38,12 +38,20 @@ Host miti-omega
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
-Host miti-vps
-  HostName 35.223.107.109
+Host mighty-host
+  HostName 192.168.9.2
+  User paul
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://github.com/pcuci/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mighty-gateway
+  HostName 34.130.164.29
   User paulcu
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
   LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://github.com/pcuci/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./install))"
-  IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
