@@ -1,0 +1,93 @@
+Host tinabuntu 
+  HostName %h.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/3mblay/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c0 
+  HostName node0.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/3mblay/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c1 
+  HostName node1.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/3mblay/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c2 
+  HostName node2.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/3mblay/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c3 
+  HostName node3.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/3mblay/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host cb0 
+  HostName backup0.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/3mblay/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+# rsync-friendly alternatives
+
+Host tinabuntu-r
+  HostName %h.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c0-r
+  HostName node0.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c1-r
+  HostName node1.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c2-r
+  HostName node2.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host c3-r
+  HostName node3.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host cb0-r
+  HostName backup0.lan
+  User christina 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519

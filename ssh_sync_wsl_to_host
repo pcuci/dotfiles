@@ -3,5 +3,7 @@
 HOST_SSH_DIR="/mnt/c/Users/pcuci/.ssh"
 WSL_SSH_DIR="/home/paul/.ssh"
 
+mkdir -p $HOST_SSH_DIR
+
 cp $WSL_SSH_DIR/id_* $HOST_SSH_DIR
 cp $WSL_SSH_DIR/config $HOST_SSH_DIR 

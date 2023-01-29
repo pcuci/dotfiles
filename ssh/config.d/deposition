@@ -8,6 +8,16 @@ Host backup0 node0 node1 node2 node3
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
+Host pve wireguard 
+  HostName %h.lan
+  User root 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://github.com/pcuci/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_ed25519
+
 Host mk8s 
   HostName %h.lan
   User ubuntu 
