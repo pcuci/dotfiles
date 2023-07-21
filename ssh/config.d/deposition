@@ -18,6 +18,13 @@ Host pve wireguard
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
+Host pve-r
+  HostName pve.lan
+  User root 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
 Host mk8s 
   HostName %h.lan
   User ubuntu 

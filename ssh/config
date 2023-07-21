@@ -9,11 +9,48 @@ Host ubisoft
   ProxyCommand ssh -W %h:%p
   ForwardX11 yes
 
-Host jump 
-  HostName primary.lan
-  User paul
+Host mtr 
+  HostName vps-6ae2257c.vps.ovh.ca
+  User ubuntu 
   AddKeysToAgent yes
-  IdentityFile ~/.ssh/id_rsa
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtr-r
+  HostName vps-6ae2257c.vps.ovh.ca
+  User ubuntu 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl 
+  HostName 192.168.1.105
+  #  HostName mtl.lan 
+  User paul 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl-r
+  HostName mtl.lan 
+  User paul 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host plex 
+  HostName 192.168.1.34 
+  User root 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
   IdentityFile ~/.ssh/id_ed25519
 
 Host work
