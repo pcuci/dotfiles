@@ -44,6 +44,22 @@ Host mtl-r
   PermitLocalCommand yes
   IdentityFile ~/.ssh/id_ed25519
 
+Host code 
+  HostName code.lan 
+  User paul 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  # Unfortunately ssh does not support line breaks in config files
+  LocalCommand ssh -o PermitLocalCommand=no %n "which git >/dev/null && ([[ -d ~/.dotfiles ]] && (echo "Updating dotfiles on %h ..." && cd ~/.dotfiles && git pull -q && ./install) || (echo "Installing dotfiles on %h ..." && git clone -q https://gitlab.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles && ./install))"
+  IdentityFile ~/.ssh/id_ed25519
+
+Host code-r
+  HostName code.lan 
+  User paul 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
 Host plex 
   HostName 192.168.1.34 
   User root 
