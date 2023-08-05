@@ -56,6 +56,7 @@ Host code
 Host code-r
   HostName code.lan 
   User paul 
+  SendEnv LC_BYOBU
   AddKeysToAgent yes
   PermitLocalCommand yes
   IdentityFile ~/.ssh/id_ed25519
