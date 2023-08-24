@@ -30,3 +30,4 @@
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
+  - [~/.dotfiles/fzf/install --all, Installing fzf]

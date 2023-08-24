@@ -6,3 +6,6 @@
 	path = complete-alias
 	url = https://github.com/cykerway/complete-alias.git 
 	branch = master
+[submodule "fzf"]
+	path = fzf
+	url = https://github.com/junegunn/fzf.git

@@ -10,5 +10,7 @@ export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/nu
 
 eval `keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519`
 
+source ~/.fzf.bash
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
