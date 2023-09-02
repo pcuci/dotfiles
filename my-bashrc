@@ -1,10 +1,13 @@
 export WIN_IP=`cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2`
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$PATH:$HOME/.local/bin"
+[[ ":$PATH:" != *":$HOME/.pulumi/bin:"* ]] && export PATH="$PATH:$HOME/.pulumi/bin"
+[[ ":$PATH:" != *":${KREW_ROOT:-$HOME/.krew}/bin:"* ]] && export PATH="$PATH:${KREW_ROOT:-$HOME/.krew}/bin"
+[[ ":$PATH:" != *":$HOME/.linkerd2/bin:"* ]] && export PATH="$PATH:$HOME/.linkerd2/bin"
 
-export PATH=$PATH:~/.local/bin
-export PATH=$PATH:~/.pulumi/bin
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-export PATH=$PATH:~/.linkerd2/bin
-export no_proxy=$no_proxy,kubernetes.docker.internal
+
+if [[ ":$no_proxy:" != *":kubernetes.docker.internal:"* ]]; then
+  export no_proxy="$no_proxy,kubernetes.docker.internal"
+fi
 
 export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
 
