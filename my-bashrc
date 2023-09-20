@@ -27,12 +27,22 @@ _gitlab-ci-local_yargs_completions()
 complete -o bashdefault -o default -F _gitlab-ci-local_yargs_completions gitlab-ci-local
 ###-end-gitlab-ci-local-completions-###
 
+export GOPATH=$HOME/go
 export WIN_IP=`cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2`
-[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$PATH:$HOME/.local/bin"
-[[ ":$PATH:" != *":$HOME/.pulumi/bin:"* ]] && export PATH="$PATH:$HOME/.pulumi/bin"
-[[ ":$PATH:" != *":${KREW_ROOT:-$HOME/.krew}/bin:"* ]] && export PATH="$PATH:${KREW_ROOT:-$HOME/.krew}/bin"
-[[ ":$PATH:" != *":$HOME/.linkerd2/bin:"* ]] && export PATH="$PATH:$HOME/.linkerd2/bin"
 
+paths_to_add=(
+  "$HOME/.local/bin"
+  "$HOME/.pulumi/bin"
+  "${KREW_ROOT:-$HOME/.krew}/bin"
+  "$HOME/.linkerd2/bin"
+  "$GOPATH/bin"
+)
+
+for path in "${paths_to_add[@]}"; do
+  if [[ ":$PATH:" != *":$path:"* ]]; then
+    export PATH="$PATH:$path"
+  fi
+done
 
 if [[ ":$no_proxy:" != *":kubernetes.docker.internal:"* ]]; then
   export no_proxy="$no_proxy,kubernetes.docker.internal"
@@ -47,6 +57,5 @@ source ~/.fzf.bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
-export GOPATH=$HOME/go
 
 source ~/.bash_aliases
