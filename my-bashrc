@@ -36,6 +36,7 @@ paths_to_add=(
   "${KREW_ROOT:-$HOME/.krew}/bin"
   "$HOME/.linkerd2/bin"
   "$GOPATH/bin"
+  "$HOME/.cargo/bin"
 )
 
 for path in "${paths_to_add[@]}"; do
