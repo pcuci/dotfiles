@@ -37,6 +37,7 @@ paths_to_add=(
   "$HOME/.linkerd2/bin"
   "$GOPATH/bin"
   "$HOME/.cargo/bin"
+  "/snap/bin"
 )
 
 for path in "${paths_to_add[@]}"; do
