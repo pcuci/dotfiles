@@ -1,0 +1,58 @@
+
+#!/usr/bin/env bash
+
+# Parse command-line arguments
+FROM="wsl" # Default: sync from WSL to host
+TO="host" # Default: sync from WSL to host
+HOST_USERNAME=$(whoami) # Default to the WSL username
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --from=*)
+            FROM="${1#*=}"
+            shift
+            ;;
+        --to=*)
+            TO="${1#*=}"
+            shift
+            ;;
+        --host-username=*)
+            HOST_USERNAME="${1#*=}"
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Setup source and destination based on arguments
+if [[ "$FROM" == "wsl" && "$TO" == "host" ]]; then
+    SOURCE_DIR="$HOME/.ssh/"
+    DEST_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
+elif [[ "$FROM" == "host" && "$TO" == "wsl" ]]; then
+    SOURCE_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
+    DEST_DIR="$HOME/.ssh/"
+else
+    echo "Invalid synchronization direction."
+    exit 1
+fi
+
+# Function to check for existing files and compare checksums
+verify_and_sync_files() {
+    # Perform a "dry run" to show what would be synced
+    rsync -avncLi "$SOURCE_DIR/" "$DEST_DIR/" | awk '{if($0 ~ />\w+c/) {print "\033[31m" $0 "\033[0m"} else if($0 ~ />f/) {print "\033[32m" $0 "\033[0m"} else {print $0}}'
+
+    # Actually perform the rsync
+    rsync -avhL --ignore-existing "$SOURCE_DIR/" "$DEST_DIR/"
+
+    # Ensure WSL permissions
+    if [[ "$TO" == "wsl" ]]; then
+        find "$DEST_DIR" -type d -exec chmod 700 {} \;
+        find "$DEST_DIR" -type f -name '*' -exec chmod 600 {} \;
+        find "$DEST_DIR" -type f -name '*.pub' -exec chmod 644 {} \;
+    fi
+}
+
+# Check for file differences and synchronize
+verify_and_sync_files
