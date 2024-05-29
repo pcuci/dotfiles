@@ -7,6 +7,14 @@ Host tinabuntu
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
+Host vobuntu 
+  HostName %h.lan
+  User andrew 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/id_ed25519
+
 Host c0 
   HostName node0.lan
   User christina 
