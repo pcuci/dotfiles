@@ -1,0 +1,30 @@
+Host mtl-macamd-live
+  Hostname 10.128.205.26
+  User svc_hydra_live
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl-macamd-dev
+  Hostname 10.128.205.26
+  User svc_hydra_dev
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl-macamd
+  Hostname 10.128.205.26
+  User pcuciureanu 
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl-macarm-live
+  HostName 10.128.204.240  
+  User svc_hydra_live
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl-macarm-dev
+  HostName 10.128.204.240  
+  User svc_hydra_dev
+  IdentityFile ~/.ssh/id_ed25519
+
+Host mtl-macarm
+  HostName 10.128.204.240  
+  User pcuciureanu 
+  IdentityFile ~/.ssh/id_ed25519
+
