@@ -99,3 +99,11 @@ Host cb0-r
   AddKeysToAgent yes
   PermitLocalCommand yes
   IdentityFile ~/.ssh/id_ed25519
+
+Host stable-aphid top-earwig witty-eagle
+  HostName %h.forest-hydra.ts.net
+  User debian 
+  AddKeysToAgent yes
+  PermitLocalCommand yes
+  IdentityFile ~/.ssh/id_ed25519
+
