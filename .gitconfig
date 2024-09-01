@@ -6,11 +6,6 @@
 	autocrlf = false
 	eol = lf
 	editor = vi
-[safe]
-	directory = /home/christina/code/christina.science/infra/compute/sun
-	directory = /home/christina/code/christina.science/infra/compute/coriolis
-	directory = /home/christina/code/adpd/processing/ants-installer
-	directory = /home/christina/code/christina.science/assist/openai
 [credential "https://github.com"]
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
