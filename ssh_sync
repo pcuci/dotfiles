@@ -7,16 +7,16 @@ DEST_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
 
 # Helper function to print usage
 usage() {
-    echo "Usage: $0 [--host-to-wsl]"
-    echo "  --host-to-wsl  Sync from host to WSL instead of the default WSL to host."
-    echo "  --help         Display this help message and exit."
+    echo "Usage: $0 [--from-host]"
+    echo "  --from-host     Sync from host to WSL instead of the default WSL to host."
+    echo "  --help          Display this help message and exit."
     exit 1
 }
 
 # Parse command-line arguments
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        --host-to-wsl)
+        --from-host)
             SOURCE_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
             DEST_DIR="$HOME/.ssh/"
             shift
@@ -41,14 +41,17 @@ sync_ssh_directories() {
     mkdir -p "$DEST_DIR"
 
     # Preview changes
-    rsync -nvr "$SOURCE_DIR" "$DEST_DIR"
+    echo "Previewing changes:"
     
+    rsync -avncLi "$SOURCE_DIR/" "$DEST_DIR/" | awk '{if($0 ~ />\w+c/) {print "\033[31m" $0 "\033[0m"} else if($0 ~ />f/) {print "\033[32m" $0 "\033[0m"} else {print $0}}'
+    echo "Above are the proposed changes."
+
     # Ask user to confirm synchronization
-    read -p "Proceed with the synchronization (y/n)? " -n 1 -r
+    read -p "Proceed with the actual synchronization (y/n)? " -n 1 -r
     echo
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rsync -avhL "$SOURCE_DIR" "$DEST_DIR"
+        rsync -avhL --delete "$SOURCE_DIR" "$DEST_DIR"
         
         # Apply appropriate permissions after successful synchronization
         echo "Adjusting permissions..."
