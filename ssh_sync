@@ -30,35 +30,36 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-# Function to synchronize SSH directories
 sync_ssh_directories() {
     echo "Syncing from $SOURCE_DIR to $DEST_DIR"
-
-    # Check if the base directory exists
     BASE_DIR=$(dirname "$DEST_DIR")
     if [ ! -d "$BASE_DIR" ]; then
         echo "Error: The base directory $BASE_DIR does not exist."
         exit 1
     fi
 
-    # Ensure the SSH destination directory exists
     mkdir -p "$DEST_DIR"
+
+    # Preview changes
+    rsync -nvr "$SOURCE_DIR" "$DEST_DIR"
     
-    rsync -nvr "$SOURCE_DIR" "$DEST_DIR" | awk '{
-        # Existing color-coding logic
-    }'
-    
+    # Ask user to confirm synchronization
     read -p "Proceed with the synchronization (y/n)? " -n 1 -r
     echo
+    
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         rsync -avhL "$SOURCE_DIR" "$DEST_DIR"
         
-        # Existing permission adjustment logic
-        if [[ "$1" == "--host-to-wsl" ]]; then
-            find "$DEST_DIR" -type d -exec chmod 700 {} \;
-            find "$DEST_DIR" -type f -exec chmod 600 {} \;
-            find "$DEST_DIR" -name '*.pub' -exec chmod 644 {} \;
-        fi
+        # Apply appropriate permissions after successful synchronization
+        echo "Adjusting permissions..."
+        find "$DEST_DIR" -type d -exec chmod 700 {} \;
+        find "$DEST_DIR" -type f -name '*.pub' -exec chmod 644 {} \;
+        find "$DEST_DIR" -type f ! -name '*.pub' -exec chmod 600 {} \;
+        echo "Permissions adjusted."
+
+    else
+        echo "Synchronization aborted."
+        exit 1
     fi
 }
 
