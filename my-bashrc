@@ -74,4 +74,6 @@ proxy_off() {
     echo "Proxy disabled."
 }
 
+export GPG_TTY=$(tty)
+
 source ~/.bash_aliases
