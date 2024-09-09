@@ -12,3 +12,5 @@
 	helper = !/usr/bin/gh auth git-credential
 [commit]
 	gpgsign = true
+[url "git@gitlab-ncsa.ubisoft.org:"]
+	insteadOf = https://gitlab-ncsa.ubisoft.org/

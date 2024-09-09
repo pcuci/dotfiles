@@ -74,6 +74,8 @@ proxy_off() {
     echo "Proxy disabled."
 }
 
+export GOPRIVATE=gitlab-ncsa.ubisoft.org
+
 export GPG_TTY=$(tty)
 
 source ~/.bash_aliases
