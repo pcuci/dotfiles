@@ -50,6 +50,7 @@ if [[ ":$no_proxy:" != *":kubernetes.docker.internal:"* ]]; then
   export no_proxy="$no_proxy,kubernetes.docker.internal"
 fi
 
+export DISABLE_UPDATE_PROMPT=true
 export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
 
 eval `keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519`
