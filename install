@@ -1,25 +1,47 @@
 #!/usr/bin/env bash
-
 set -e
 
-CONFIG="install.conf.yaml"
-DIR_DOTBOT="dotbot"
-DIR_COMPLETE_ALIAS="complete-alias"
+# Default profile is minimal
+PROFILE=${1:-default}
+ENV_FILE=".env"
+CUSTOM_ENV_FILE=".env.${PROFILE}"
 
+# Load the default (minimal) environment first
+if [[ -f "$ENV_FILE" ]]; then
+    echo "Loading default environment"
+    export $(grep -v '^#' "$ENV_FILE" | xargs)
+fi
+
+# Load the custom profile-specific environment if provided
+if [[ -f "$CUSTOM_ENV_FILE" ]]; then
+    echo "Loading profile: $PROFILE"
+    export $(grep -v '^#' "$CUSTOM_ENV_FILE" | xargs)
+else
+    echo "No profile-specific environment found for $PROFILE. Proceeding with default."
+fi
+
+# Ensure the GITCONFIG_FILE variable is defined
+GITCONFIG_FILE=".gitconfig.${PROFILE}"
+if [[ ! -f "$GITCONFIG_FILE" ]]; then
+    echo "Profile-specific .gitconfig not found. Using default gitconfig."
+    GITCONFIG_FILE=".gitconfig.default"
+fi
+export GITCONFIG_FILE="${GITCONFIG_FILE}"
+
+# Preprocess the YAML file to include or exclude Starship.toml dynamically
+CONFIG_FILE="install.conf.yaml"
+TEMPLATE_FILE="install.conf.template.yaml"
+if [[ "$USE_NERD_FONT" == "true" ]]; then
+    echo "Nerd Fonts enabled. Including Starship configuration."
+    envsubst < "$TEMPLATE_FILE" > "$CONFIG_FILE"
+else
+    echo "Nerd Fonts disabled. Excluding Starship configuration."
+    # Remove the Starship link section from the template
+    sed '/~\/\.config\/starship\.toml/d' "$TEMPLATE_FILE" | envsubst > "$CONFIG_FILE"
+fi
+
+# Run Dotbot
+DOTBOT_DIR="dotbot"
 DOTBOT_BIN="bin/dotbot"
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Install custom alias
-cd "${BASEDIR}"
-git -C "${DIR_COMPLETE_ALIAS}" submodule sync --quiet --recursive
-git submodule update --init --recursive "${DIR_COMPLETE_ALIAS}"
-
-cat ${DIR_COMPLETE_ALIAS}/complete_alias my-complete-alias > .bash_completion
-
-# end custom prep
-
-cd "${BASEDIR}"
-git -C "${DIR_DOTBOT}" submodule sync --quiet --recursive
-git submodule update --init --recursive "${DIR_DOTBOT}"
-
-"${BASEDIR}/${DIR_DOTBOT}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"
+"${DOTBOT_DIR}/${DOTBOT_BIN}" -d "$(pwd)" -c "$CONFIG_FILE"

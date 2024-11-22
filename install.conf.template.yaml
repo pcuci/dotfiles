@@ -10,7 +10,7 @@
     ~/.bash_logout: .bash_logout
     ~/.bash_aliases: .bash_aliases
     ~/.bash_completion: .bash_completion
-    ~/.gitconfig: .gitconfig
+    ~/.gitconfig: ${GITCONFIG_FILE}
     ~/.gitignore_global: .gitignore_global
     ~/.config/starship.toml: starship-gruvbox-rainbow/starship.toml
     ~/.local/bin/dockerd-start:

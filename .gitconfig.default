@@ -1,0 +1,16 @@
+[user]
+	email = paul.cuciureanu@ubisoft.com
+	name = Paul Cuciureanu
+	signingkey = 530670B73E0911760586F3DF34174D23F04CE669
+[core]
+	autocrlf = false
+	eol = lf
+	editor = vi
+[credential "https://github.com"]
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = !/usr/bin/gh auth git-credential
+[commit]
+	gpgsign = true
+[url "git@gitlab-ncsa.ubisoft.org:"]
+	insteadOf = https://gitlab-ncsa.ubisoft.org/
