@@ -9,3 +9,6 @@
 [submodule "fzf"]
 	path = fzf
 	url = https://github.com/junegunn/fzf.git
+[submodule "/home/paul/.dotfiles/starship-gruvbox-rainbow"]
+	path = starship-gruvbox-rainbow
+	url = https://github.com/fang2hou/starship-gruvbox-rainbow

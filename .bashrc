@@ -1,35 +1,26 @@
+# GitLab CI Local completions
 ###-begin-gitlab-ci-local-completions-###
-#
-# yargs command completion script
-#
-# Installation: gitlab-ci-local completion >> ~/.bashrc
-#    or gitlab-ci-local completion >> ~/.bash_profile on OSX.
-#
-_gitlab-ci-local_yargs_completions()
-{
+_gitlab-ci-local_yargs_completions() {
     local cur_word args type_list
-
     cur_word="${COMP_WORDS[COMP_CWORD]}"
     args=("${COMP_WORDS[@]}")
-
-    # ask yargs to generate completions.
     type_list=$(gitlab-ci-local --get-yargs-completions "${args[@]}")
-
-    COMPREPLY=( $(compgen -W "${type_list}" -- ${cur_word}) )
-
-    # if no match was found, fall back to filename completion
+    COMPREPLY=( $(compgen -W "${type_list}" -- "${cur_word}") )
     if [ ${#COMPREPLY[@]} -eq 0 ]; then
       COMPREPLY=()
     fi
-
     return 0
 }
 complete -o bashdefault -o default -F _gitlab-ci-local_yargs_completions gitlab-ci-local
 ###-end-gitlab-ci-local-completions-###
 
+# Set GOPATH
 export GOPATH=$HOME/go
-export WIN_IP=`cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2`
 
+# Set WIN_IP from resolv.conf
+export WIN_IP=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf)
+
+# Add custom paths to PATH
 paths_to_add=(
   "$HOME/.local/bin"
   "$HOME/.pulumi/bin"
@@ -39,27 +30,34 @@ paths_to_add=(
   "$HOME/.cargo/bin"
   "/snap/bin"
 )
-
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
     export PATH="$PATH:$path"
   fi
 done
 
+# Configure no_proxy for Kubernetes
 if [[ ":$no_proxy:" != *":kubernetes.docker.internal:"* ]]; then
   export no_proxy="$no_proxy,kubernetes.docker.internal"
 fi
 
+# Disable update prompts
 export DISABLE_UPDATE_PROMPT=true
+
+# Set DISPLAY for WSL X11
 export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
 
-eval `keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519`
+# Initialize keychain for SSH keys
+eval $(keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519)
 
+# Source FZF
 source ~/.fzf.bash
 
+# Initialize NVM (Node Version Manager)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
+# Define proxy commands
 proxy_on() {
     export HTTP_PROXY=http://proxy.ubisoft.org:3128
     export HTTPS_PROXY=$HTTP_PROXY
@@ -75,8 +73,14 @@ proxy_off() {
     echo "Proxy disabled."
 }
 
+# Export private GitLab settings
 export GOPRIVATE=gitlab-ncsa.ubisoft.org
 
+# Set GPG_TTY
 export GPG_TTY=$(tty)
 
+# Source user-defined aliases
 source ~/.bash_aliases
+
+# Initialize Starship prompt
+eval "$(starship init bash)"

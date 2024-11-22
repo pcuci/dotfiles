@@ -9,15 +9,6 @@ DIR_COMPLETE_ALIAS="complete-alias"
 DOTBOT_BIN="bin/dotbot"
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# install Oh My Bash
-rm -rf ../.oh-my-bash && rm -f ~/.bashrc.pre-oh-my-bash
-
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" &
-wait $!
-
-cp ~/.bashrc ./oh-my-bashrc.original && rm -f ~/.bashrc
-cat oh-my-bashrc my-bashrc > .bashrc
-
 # Install custom alias
 cd "${BASEDIR}"
 git -C "${DIR_COMPLETE_ALIAS}" submodule sync --quiet --recursive

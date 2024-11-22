@@ -2,7 +2,7 @@
     link:
       relink: true
 
-- clean: ['~']
+- clean: ["~"]
 
 - link:
     ~/.profile: .profile
@@ -12,6 +12,7 @@
     ~/.bash_completion: .bash_completion
     ~/.gitconfig: .gitconfig
     ~/.gitignore_global: .gitignore_global
+    ~/.config/starship.toml: starship-gruvbox-rainbow/starship.toml
     ~/.local/bin/dockerd-start:
       create: true
       path: bin/dockerd-start
@@ -22,12 +23,17 @@
       create: true
       path: bin/winhost.sh
     ~/.ssh/config:
-        path: ssh/config
-        create: true
+      path: ssh/config
+      create: true
     ~/.ssh/config.d:
-        path: ssh/config.d
-        create: true
+      path: ssh/config.d
+      create: true
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
-  - [~/.dotfiles/fzf/install --all, Installing fzf]
+    - [git submodule update --init --recursive, Installing submodules]
+    - [~/.dotfiles/fzf/install --all, Installing fzf]
+    - [
+        if ! command -v starship &>/dev/null; then
+        curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y; fi,
+        Installing Starship locally if not already installed,
+      ]
