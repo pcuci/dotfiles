@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
+
 set -e
 
-# Default profile is minimal
+# Define variables
 PROFILE=${1:-default}
 ENV_FILE=".env"
 CUSTOM_ENV_FILE=".env.${PROFILE}"
+CONFIG_FILE="install.conf.yaml"
+TEMPLATE_FILE="install.conf.template.yaml"
+DIR_DOTBOT="dotbot"
+DIR_COMPLETE_ALIAS="complete-alias"
+DOTBOT_BIN="bin/dotbot"
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Load the default (minimal) environment first
+# Load default (minimal) environment
 if [[ -f "$ENV_FILE" ]]; then
     echo "Loading default environment"
     export $(grep -v '^#' "$ENV_FILE" | xargs)
 fi
 
-# Load the custom profile-specific environment if provided
+# Load profile-specific environment
 if [[ -f "$CUSTOM_ENV_FILE" ]]; then
     echo "Loading profile: $PROFILE"
     export $(grep -v '^#' "$CUSTOM_ENV_FILE" | xargs)
@@ -23,25 +30,43 @@ fi
 # Ensure the GITCONFIG_FILE variable is defined
 GITCONFIG_FILE=".gitconfig.${PROFILE}"
 if [[ ! -f "$GITCONFIG_FILE" ]]; then
-    echo "Profile-specific .gitconfig not found. Using default gitconfig."
+    echo "Profile-specific .gitconfig not found. Using default."
     GITCONFIG_FILE=".gitconfig.default"
 fi
 export GITCONFIG_FILE="${GITCONFIG_FILE}"
 
 # Preprocess the YAML file to include or exclude Starship.toml dynamically
-CONFIG_FILE="install.conf.yaml"
-TEMPLATE_FILE="install.conf.template.yaml"
 if [[ "$USE_NERD_FONT" == "true" ]]; then
     echo "Nerd Fonts enabled. Including Starship configuration."
     envsubst < "$TEMPLATE_FILE" > "$CONFIG_FILE"
 else
     echo "Nerd Fonts disabled. Excluding Starship configuration."
-    # Remove the Starship link section from the template
     sed '/~\/\.config\/starship\.toml/d' "$TEMPLATE_FILE" | envsubst > "$CONFIG_FILE"
 fi
 
-# Run Dotbot
-DOTBOT_DIR="dotbot"
-DOTBOT_BIN="bin/dotbot"
+# Install custom aliases
+echo "Installing custom aliases..."
+cd "${BASEDIR}"
+git -C "${DIR_COMPLETE_ALIAS}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DIR_COMPLETE_ALIAS}"
 
-"${DOTBOT_DIR}/${DOTBOT_BIN}" -d "$(pwd)" -c "$CONFIG_FILE"
+# Combine aliases into a single completion file
+cat "${DIR_COMPLETE_ALIAS}/complete_alias" my-complete-alias > .bash_completion
+
+# Initialize Dotbot submodule
+echo "Initializing Dotbot submodule..."
+cd "${BASEDIR}"
+git -C "${DIR_DOTBOT}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DIR_DOTBOT}"
+
+# Run Dotbot
+echo "Running Dotbot..."
+"${BASEDIR}/${DIR_DOTBOT}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG_FILE}"
+
+# Install Starship if necessary
+if [[ "$USE_NERD_FONT" == "true" && ! -x "$HOME/.local/bin/starship" ]]; then
+    echo "Installing Starship..."
+    curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y
+fi
+
+echo "Dotfiles setup complete!"
