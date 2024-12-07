@@ -5,13 +5,6 @@ Portable dotfiles for a consistent and familiar workflow
 
 ```bash
 git clone https://github.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles
-
-# Remove default configurations to link with dotfiles
-diff ~/.profile ./.profile
-rm ~/.profile
-diff ~/.bash_logout ./.bash_logout
-rm ~/.bash_logout
-
 ./install
 ```
 
