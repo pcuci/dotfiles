@@ -53,6 +53,23 @@ git submodule update --init --recursive "${DIR_COMPLETE_ALIAS}"
 # Combine aliases into a single completion file
 cat "${DIR_COMPLETE_ALIAS}/complete_alias" my-complete-alias > .bash_completion
 
+# Function to remove a regular file if it exists and is not a symlink
+remove_regular_file() {
+    local file="$1"
+    if [[ -f "$file" && ! -L "$file" ]]; then
+        echo "Removing regular file: $file"
+        rm -f "$file"
+    fi
+}
+
+# List of files to check
+files_to_remove=("$HOME/.bashrc" "$HOME/.profile")
+
+# Loop through each file and call the function
+for file in "${files_to_remove[@]}"; do
+    remove_regular_file "$file"
+done
+
 # Initialize Dotbot submodule
 echo "Initializing Dotbot submodule..."
 cd "${BASEDIR}"
