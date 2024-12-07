@@ -2,68 +2,68 @@
 
 # Set default synchronization direction: from WSL to host
 SOURCE_DIR="$HOME/.ssh/"
-HOST_USERNAME=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d '\r')  # Getting the username from the host
+HOST_USERNAME=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d '\r') # Getting the username from the host
 DEST_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
 
 # Helper function to print usage
 usage() {
-    echo "Usage: $0 [--from-host]"
-    echo "  --from-host     Sync from host to WSL instead of the default WSL to host."
-    echo "  --help          Display this help message and exit."
-    exit 1
+  echo "Usage: $0 [--from-host]"
+  echo "  --from-host     Sync from host to WSL instead of the default WSL to host."
+  echo "  --help          Display this help message and exit."
+  exit 1
 }
 
 # Parse command-line arguments
 while [ "$#" -gt 0 ]; do
-    case "$1" in
-        --from-host)
-            SOURCE_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
-            DEST_DIR="$HOME/.ssh/"
-            shift
-            ;;
-        --help)
-            usage
-            ;;
-        *)
-            usage
-            ;;
-    esac
+  case "$1" in
+  --from-host)
+    SOURCE_DIR="/mnt/c/Users/$HOST_USERNAME/.ssh/"
+    DEST_DIR="$HOME/.ssh/"
+    shift
+    ;;
+  --help)
+    usage
+    ;;
+  *)
+    usage
+    ;;
+  esac
 done
 
 sync_ssh_directories() {
-    echo "Syncing from $SOURCE_DIR to $DEST_DIR"
-    BASE_DIR=$(dirname "$DEST_DIR")
-    if [ ! -d "$BASE_DIR" ]; then
-        echo "Error: The base directory $BASE_DIR does not exist."
-        exit 1
-    fi
+  echo "Syncing from $SOURCE_DIR to $DEST_DIR"
+  BASE_DIR=$(dirname "$DEST_DIR")
+  if [ ! -d "$BASE_DIR" ]; then
+    echo "Error: The base directory $BASE_DIR does not exist."
+    exit 1
+  fi
 
-    mkdir -p "$DEST_DIR"
+  mkdir -p "$DEST_DIR"
 
-    # Preview changes
-    echo "Previewing changes:"
-    
-    rsync -avncLi "$SOURCE_DIR/" "$DEST_DIR/" | awk '{if($0 ~ />\w+c/) {print "\033[31m" $0 "\033[0m"} else if($0 ~ />f/) {print "\033[32m" $0 "\033[0m"} else {print $0}}'
-    echo "Above are the proposed changes."
+  # Preview changes
+  echo "Previewing changes:"
 
-    # Ask user to confirm synchronization
-    read -p "Proceed with the actual synchronization (y/n)? " -n 1 -r
-    echo
-    
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rsync -avhL --delete "$SOURCE_DIR" "$DEST_DIR"
-        
-        # Apply appropriate permissions after successful synchronization
-        echo "Adjusting permissions..."
-        find "$DEST_DIR" -type d -exec chmod 700 {} \;
-        find "$DEST_DIR" -type f -name '*.pub' -exec chmod 644 {} \;
-        find "$DEST_DIR" -type f ! -name '*.pub' -exec chmod 600 {} \;
-        echo "Permissions adjusted."
+  rsync -avncLi "$SOURCE_DIR/" "$DEST_DIR/" | awk '{if($0 ~ />\w+c/) {print "\033[31m" $0 "\033[0m"} else if($0 ~ />f/) {print "\033[32m" $0 "\033[0m"} else {print $0}}'
+  echo "Above are the proposed changes."
 
-    else
-        echo "Synchronization aborted."
-        exit 1
-    fi
+  # Ask user to confirm synchronization
+  read -p "Proceed with the actual synchronization (y/n)? " -n 1 -r
+  echo
+
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    rsync -avhL --delete "$SOURCE_DIR" "$DEST_DIR"
+
+    # Apply appropriate permissions after successful synchronization
+    echo "Adjusting permissions..."
+    find "$DEST_DIR" -type d -exec chmod 700 {} \;
+    find "$DEST_DIR" -type f -name '*.pub' -exec chmod 644 {} \;
+    find "$DEST_DIR" -type f ! -name '*.pub' -exec chmod 600 {} \;
+    echo "Permissions adjusted."
+
+  else
+    echo "Synchronization aborted."
+    exit 1
+  fi
 }
 
 # Execute the synchronization function

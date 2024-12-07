@@ -1,0 +1,40 @@
+{
+  "cSpell.customDictionaries": {
+    "universal": {
+      "name": "universal",
+      "path": "~/.dotfiles/dictionaries/universal.txt",
+      "scope": "workspace",
+      "addWords": true
+    },
+    "deposition": {
+      "name": "deposition",
+      "path": "~/.dotfiles/dictionaries/deposition.txt",
+      "scope": "workspace",
+      "addWords": true
+    },
+    "ubisoft": {
+      "name": "ubisoft",
+      "path": "~/.dotfiles/dictionaries/ubisoft.txt",
+      "scope": "workspace",
+      "addWords": true
+    },
+    "science": {
+      "name": "science",
+      "path": "~/.dotfiles/dictionaries/science.txt",
+      "scope": "workspace",
+      "addWords": true
+    },
+    "questionable": {
+      "name": "questionable",
+      "path": "~/.dotfiles/dictionaries/questionable.txt",
+      "scope": "workspace",
+      "addWords": true
+    },
+    "personal": {
+      "name": "personal",
+      "path": "~/.dotfiles/dictionaries/personal.txt",
+      "scope": "workspace",
+      "addWords": true
+    }
+  }
+}

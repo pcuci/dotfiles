@@ -1,0 +1,14 @@
+cdrom
+debconf
+dnsmasq
+DOTBOT
+envsubst
+gruvbox
+luci
+mailname
+nodenext
+seabios
+sonarjs
+tseslint
+virtio
+winhost
