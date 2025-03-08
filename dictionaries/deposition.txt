@@ -22,6 +22,8 @@ NOPASSWD
 passphraseless
 proxmoxve
 pulumi
+shrc
+sluggify
 tmpl
 vmbr
 vpve
