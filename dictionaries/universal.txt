@@ -30,6 +30,7 @@ eclass
 envsubst
 esac
 exoscale
+fdfind
 getconf
 GNUPGHOME
 googleapiclient
