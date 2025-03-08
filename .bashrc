@@ -29,6 +29,7 @@ paths_to_add=(
   "$GOPATH/bin"
   "$HOME/.cargo/bin"
   "/snap/bin"
+  "$HOME/.dotfiles/bin"
 )
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
