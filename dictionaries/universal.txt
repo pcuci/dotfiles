@@ -27,6 +27,7 @@ dind
 dmypy
 dnsmasq
 docmanager
+docstrings
 DOTBOT
 Dotenv
 eclass
@@ -36,6 +37,10 @@ eventsource
 exoscale
 fdfind
 filechat
+gais
+genai
+genaiscript
+genaiscripts
 getconf
 GNUPGHOME
 googleapiclient

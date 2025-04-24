@@ -1,0 +1,5 @@
+model: "azure:gpt-4o"
+envFile: "/home/paul/.env.genaiscript"
+include:
+  - "/home/paul/.dotfiles/genaiscript-samples/**/*.genai.mts"
+  - "/home/paul/.dotfiles/genaiscript/**/*.genai.mts"

@@ -1,3 +1,4 @@
+alias ls='ls -F --color'
 alias f=fabric.sh
 alias catp=cat_project.py
 alias k=kubectl
@@ -8,3 +9,4 @@ alias pon='proxy_on'
 alias poff='proxy_off'
 alias git-set-ubisoft='git config user.name "Paul Cuciureanu"; git config user.email "paul.cuciureanu@ubisoft.com"'
 alias git-unset='git config --unset user.name; git config --unset user.email'
+alias gen='genaiscript'

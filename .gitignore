@@ -1,2 +1,7 @@
 .bash_completion
 install.conf.yaml
+node_modules/
+.genaiscript/
+genaiscript-samples/
+.env.genaiscript
+.env
