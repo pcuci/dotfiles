@@ -76,32 +76,24 @@ done
 # Create GenAIScript Configuration from Template
 # ==============================================================================
 echo "Generating GenAIScript configuration file..."
-GENAI_TEMPLATE_FILE="${BASEDIR}/genaiscript/genaiscript.config.yaml.template" # Source template in dotfiles/genaiscript
-GENAI_CONFIG_FILE="${BASEDIR}/genaiscript.config.yaml"                         # Intermediate output within dotfiles (optional, could skip)
-GENAI_HOME_CONFIG_FILE="$HOME/genaiscript.config.yaml"                       # Target file in home directory
+GENAI_CONFIG_FILE="${BASEDIR}/genaiscript.config.yaml" # Source template in dotfiles/genaiscript
+GENAI_HOME_CONFIG_FILE="$HOME/genaiscript.config.yaml"   # Target file in home directory
 
 # Define ANSI color codes (if not already defined earlier in your script)
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-YELLOW='\033[0;33m' # Added yellow for warnings/skips
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 # Ensure the YAML template file exists
-if [[ ! -f "$GENAI_TEMPLATE_FILE" ]]; then
-    echo -e "${RED}Error: GenAIScript YAML template file not found at ${GENAI_TEMPLATE_FILE}${NC}" >&2
+if [[ ! -f "$GENAI_CONFIG_FILE" ]]; then
+    echo -e "${RED}Error: GenAIScript YAML template file not found at ${GENAI_CONFIG_FILE}${NC}" >&2
 else
-    # Use envsubst to substitute only $HOME
-    export HOME # Ensure HOME is exported for envsubst
-    if envsubst '$HOME' < "$GENAI_TEMPLATE_FILE" > "$GENAI_CONFIG_FILE"; then
-        echo "GenAIScript configuration generated at ${GENAI_CONFIG_FILE}"
-        # Copy the generated config to the home directory, overwriting if it exists
-        if cp -f "${GENAI_CONFIG_FILE}" "${GENAI_HOME_CONFIG_FILE}"; then
-            echo -e "${GREEN}Successfully copied YAML configuration to ${GENAI_HOME_CONFIG_FILE}${NC}"
-        else
-            echo -e "${RED}Error: Failed to copy YAML configuration to ${GENAI_HOME_CONFIG_FILE}${NC}" >&2
-        fi
+    # Create or replace the hard link
+    if ln -f "${GENAI_CONFIG_FILE}" "${GENAI_HOME_CONFIG_FILE}"; then
+        echo -e "${GREEN}Hard link created for GenAIScript config at ${GENAI_HOME_CONFIG_FILE}${NC}"
     else
-        echo -e "${RED}Error: Failed to generate GenAIScript YAML configuration file.${NC}" >&2
+        echo -e "${RED}Error: Failed to create hard link for GenAIScript config.${NC}" >&2
     fi
 fi
 
@@ -109,7 +101,7 @@ fi
 # Copy .env.genaiscript Template if Missing
 # ==============================================================================
 echo "Handling .env.genaiscript file..."
-ENV_TEMPLATE_FILE="${BASEDIR}/genaiscript/.env.genaiscript.template" # Source template in dotfiles/genaiscript
+ENV_TEMPLATE_FILE="${BASEDIR}/.env.genaiscript.template" # Source template in dotfiles/genaiscript
 ENV_HOME_FILE="$HOME/.env.genaiscript"                             # Target file in home directory
 
 # Ensure the .env template file exists
@@ -128,43 +120,6 @@ else
         else
             echo -e "${RED}Error: Failed to copy .env template to ${ENV_HOME_FILE}${NC}" >&2
         fi
-    fi
-fi
-
-# ==============================================================================
-# Create GenAIScript Configuration from Template
-# ==============================================================================
-echo "Generating GenAIScript configuration file..."
-GENAI_TEMPLATE_FILE="${BASEDIR}/genaiscript/genaiscript.config.yaml.template"
-GENAI_CONFIG_FILE="${BASEDIR}/genaiscript.config.yaml" # Output within the project
-GENAI_HOME_CONFIG_FILE="$HOME/genaiscript.config.yaml" # Target file in home directory
-
-# Define ANSI color codes
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-# Ensure the template file exists
-if [[ ! -f "$GENAI_TEMPLATE_FILE" ]]; then
-    echo -e "${RED}Error: GenAIScript template file not found at ${GENAI_TEMPLATE_FILE}${NC}" >&2
-else
-    # Use envsubst to substitute only $HOME
-    # Export HOME just to be extra sure it's available for envsubst in all contexts
-    export HOME
-    if envsubst '$HOME' < "$GENAI_TEMPLATE_FILE" > "$GENAI_CONFIG_FILE"; then
-        echo "GenAIScript configuration generated at ${GENAI_CONFIG_FILE}"
-        # Copy the generated config to the home directory, overwriting if it exists
-        if cp -f "${GENAI_CONFIG_FILE}" "${GENAI_HOME_CONFIG_FILE}"; then
-            # Print success message in green
-            echo -e "${GREEN}Successfully copied configuration to ${GENAI_HOME_CONFIG_FILE}${NC}"
-        else
-            # Print error message in red
-            echo -e "${RED}Error: Failed to copy configuration to ${GENAI_HOME_CONFIG_FILE}${NC}" >&2
-            # Consider exiting if this copy is critical: exit 1
-        fi
-    else
-        echo -e "${RED}Error: Failed to generate GenAIScript configuration file.${NC}" >&2
-        # Consider exiting if generation failed: exit 1
     fi
 fi
 

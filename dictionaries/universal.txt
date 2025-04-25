@@ -23,6 +23,7 @@ CWORD
 cython
 debconf
 deepseek
+DIFFLINES
 dind
 dmypy
 dnsmasq
@@ -98,6 +99,7 @@ ONLN
 opencommit
 openmost
 openpgp
+parsemrs
 pinia
 pipenv
 Pipfile
@@ -132,6 +134,7 @@ tavily
 timeslots
 torrenting
 tseslint
+unfence
 venv
 virt
 virtio
