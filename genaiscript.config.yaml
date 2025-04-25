@@ -4,10 +4,10 @@ envFile:
   - "/home/paul/.dotfiles/.env.genaiscript.config"
 include:
   - "/home/paul/.dotfiles/genaiscript-samples/**/*.genai.mts"
-  - "/home/.dotfiles/genaiscript/**/*.genai.mts"
+  - "/home/paul/.dotfiles/genaiscript/**/*.genai.mts"
 modelAliases:
   qwq: "ollama:qwq:latest"
-  coder: "ollama:qwen2.5-coder:32b-instruct-q5_K_M"
+  code: "ollama:qwen2.5-coder:32b-instruct-q5_K_M"
   llama31: "ollama:llama3.1:8b-instruct-q8_0"
   llama31hot:
     model: "ollama:llama3.1:8b-instruct-q8_0"

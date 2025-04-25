@@ -37,3 +37,4 @@
         curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y; fi,
         Installing Starship locally if not already installed,
       ]
+    - [cd genaiscript && npm install]
