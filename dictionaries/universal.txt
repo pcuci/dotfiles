@@ -104,6 +104,7 @@ pinia
 pipenv
 Pipfile
 POSTLOGOUT
+Procfile
 pulumiverse
 pybuilder
 pycache
@@ -138,11 +139,13 @@ unfence
 venv
 virt
 virtio
+vite
 vuepress
 vuetify
 wcgw
 webassets
 webcomponents
 winhost
+xclip
 yargs
 ydoc

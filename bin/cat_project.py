@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
 """
-snapshot.py – dump a concise but information‑rich snapshot of the current Git
+snapshot.py – dump a concise but information-rich snapshot of the current Git
 repository for LLM context.
 
 • Includes:  Python, JS/TS/Vue source, manifests, configs, docs, tests, CI files
-• Excludes:  build artefacts, binaries, huge files (user‑configurable limit)
-• Outputs:   <tmp>/<repo>-llm.txt (or custom --out path)
+• Excludes:  build artifacts, binaries, huge files (user-configurable limit)
+• Outputs:   <tmp>/<repo>-llm.txt  (or --out path)
+• Clipboard: copies result to the system clipboard **only if -c/--clipboard is supplied**
 """
 
 from __future__ import annotations
 import argparse
+import json
+import platform
+import shutil
 import subprocess
 import sys
-import json
 import tempfile
 from pathlib import Path
 
@@ -54,7 +57,6 @@ GLOB_INCLUDE = [
     "schema/**/*.json",
     "migrations/**/*.py",
 ]
-
 GLOB_EXCLUDE_DIRS = {".git", "node_modules", "dist", "build", ".venv", "__pycache__"}
 EXCLUDE_FILE_PATTERNS = {
     "*.min.*",
@@ -73,54 +75,78 @@ EXCLUDE_FILE_PATTERNS = {
 
 DEFAULT_SIZE_KB = 400
 NOTEBOOK_TRUNCATE = True
-
 SKIPPED_LARGE: list[tuple[Path, int]] = []
 
 
 def git_files() -> list[Path]:
-    """Return every path Git sees (tracked or untracked & un‑ignored)."""
-    out = subprocess.check_output(
-        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-        text=True,
+    """Return every path Git sees (tracked + untracked, not ignored)."""
+    try:
+        out = subprocess.check_output(
+            [
+                "git",
+                "ls-files",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "-z",
+                "--no-empty-directory",
+            ],
+            text=True,
+            encoding="utf-8",
+            stderr=subprocess.PIPE,
+        )
+        return [Path(p) for p in out.split("\0") if p]
+    except FileNotFoundError:
+        sys.exit("❌ ‘git’ command not found; is Git installed?")
+    except subprocess.CalledProcessError as e:
+        if "not a git repository" in e.stderr.lower():
+            sys.exit("❌ This directory is not a Git repository.")
+        sys.exit(f"❌ git ls-files failed: {e.stderr.strip()}")
+    except Exception as e:
+        sys.exit(f"❌ Unexpected error listing files: {e}")
+
+
+def matches_any(path: Path, patterns: list[str] | set[str]) -> bool:
+    """Return True if path matches any pattern (full or basename wildcard)."""
+    return any(path.match(p) for p in patterns) or any(
+        Path(path.name).match(p) for p in patterns if "*" in p and "/" not in p
     )
-    return [Path(p) for p in out.split("\0") if p]
-
-
-def matches_any(path: Path, globs: list[str]) -> bool:
-    """Check if the path matches any pattern in the provided glob list."""
-    return any(path.match(g) for g in globs)
 
 
 def within_size(path: Path, kb: int) -> bool:
-    """Check if the file size is within the specified kilobyte limit."""
-    return path.stat().st_size <= kb * 1024
+    """Return True if file size is within given kilobyte limit."""
+    try:
+        return path.stat().st_size <= kb * 1024
+    except OSError:
+        return False
 
 
 def strip_ipynb(path: Path) -> str:
     """Return notebook JSON with outputs removed."""
-    with path.open(encoding="utf-8") as f:
-        nb = json.load(f)
-    for cell in nb.get("cells", []):
-        cell.pop("outputs", None)
-        cell["execution_count"] = None
-    return json.dumps(nb, ensure_ascii=False, indent=1)
+    try:
+        nb = json.loads(path.read_text(encoding="utf-8"))
+        for cell in nb.get("cells", []):
+            if isinstance(cell, dict):
+                cell.pop("outputs", None)
+                if "execution_count" in cell:
+                    cell["execution_count"] = None
+        return json.dumps(nb, ensure_ascii=False, indent=1)
+    except Exception as e:
+        return f"# ERROR processing notebook {path}: {e}\n" + path.read_text(
+            encoding="utf-8", errors="replace"
+        )
 
 
 def collect(size_kb: int) -> list[Path]:
-    """
-    Collect files that match inclusion rules and are within size constraints.
-
-    Args:
-        size_kb (int): Maximum size in kilobytes for included files.
-
-    Returns:
-        list[Path]: List of files to include in the snapshot.
-    """
+    """Collect files matching inclusion rules and size limit."""
     keep: list[Path] = []
+    SKIPPED_LARGE.clear()
     for p in git_files():
+        if not p.is_file():
+            continue
         if any(part in GLOB_EXCLUDE_DIRS for part in p.parts):
             continue
-        if matches_any(p, EXCLUDE_FILE_PATTERNS):
+        if matches_any(Path(p.name), EXCLUDE_FILE_PATTERNS):
             continue
         if matches_any(p, GLOB_INCLUDE):
             if within_size(p, size_kb):
@@ -131,20 +157,16 @@ def collect(size_kb: int) -> list[Path]:
 
 
 def dump(paths: list[Path], out_file: Path, echo: bool, size_kb: int) -> None:
-    """
-    Write selected file contents into a single snapshot file.
-
-    Args:
-        paths (list[Path]): Files to include in the snapshot.
-        out_file (Path): Output path for the snapshot.
-        echo (bool): Whether to also print contents to stdout.
-        size_kb (int): Size threshold for skipped files.
-    """
+    """Write the snapshot of collected files into a single output file."""
     out_file.parent.mkdir(parents=True, exist_ok=True)
     with out_file.open("w", encoding="utf-8") as dst:
-        for p in sorted(paths):
-            rel = p.as_posix()
-            banner = f"\n{'=' * 80}\n# {rel}\n{'=' * 80}\n"
+        for i, p in enumerate(sorted(paths)):
+            banner = (
+                ("" if i == 0 else "\n")
+                + "📄 FILE \033[93m"
+                + p.as_posix()
+                + "\033[0m:\n"
+            )
             if echo:
                 print(banner, end="")
             dst.write(banner)
@@ -155,55 +177,146 @@ def dump(paths: list[Path], out_file: Path, echo: bool, size_kb: int) -> None:
                 else:
                     content = p.read_text(encoding="utf-8", errors="replace")
             except Exception as exc:
-                content = f"# ERROR reading {rel}: {exc}\n"
+                content = f"# ERROR reading {p.as_posix()}: {exc}\n"
 
+            content = content.rstrip() + "\n"
             if echo:
-                print(content)
-            dst.write(content + "\n")
+                print(content, end="")
+            dst.write(content)
 
     if SKIPPED_LARGE:
         footer_lines = [
-            f"\n{'=' * 80}",
-            f"# Skipped (>{size_kb} KB)",
-            f"{'=' * 80}",
-            *(f"{p} — {sz} KB" for p, sz in SKIPPED_LARGE),
+            "\n" + "=" * 80,
+            f"# Skipped {len(SKIPPED_LARGE)} file(s) larger than {size_kb} KB",
+            "=" * 80,
+            *(f"# - {p.as_posix()} ({sz} KB)" for p, sz in sorted(SKIPPED_LARGE)),
             "",
         ]
         footer = "\n".join(footer_lines)
         if echo:
             print(footer, end="")
-        with out_file.open("a", encoding="utf-8") as dst:
-            dst.write(footer)
+        out_file.write_text(
+            out_file.read_text(encoding="utf-8") + footer, encoding="utf-8"
+        )
 
 
-def main() -> None:
-    """Parse CLI arguments and run the snapshot collection/dump process."""
+def is_wsl() -> bool:
+    """Return True if running inside Windows Subsystem for Linux."""
+    try:
+        return "microsoft" in platform.uname().release.lower()
+    except Exception:
+        return False
+
+
+def copy_to_clipboard(file_path: Path) -> bool:
+    """Try to put file content on the system clipboard. Return True on success."""
+    try:
+        content = file_path.read_text(encoding="utf-8")
+    except Exception as e:
+        print(f"⚠️  Cannot read file for clipboard: {e}", file=sys.stderr)
+        return False
+
+    os_name = platform.system()
+    tool: list[str] | None = None
+
+    if os_name == "Windows" and shutil.which("clip.exe"):
+        tool = ["clip.exe"]
+    elif os_name == "Darwin" and shutil.which("pbcopy"):
+        tool = ["pbcopy"]
+    elif os_name == "Linux":
+        if is_wsl() and shutil.which("clip.exe"):
+            tool = ["clip.exe"]
+        elif shutil.which("wl-copy"):
+            tool = ["wl-copy"]
+        elif shutil.which("xclip"):
+            tool = ["xclip", "-selection", "clipboard"]
+
+    if not tool:
+        print(f"ℹ️  No clipboard tool found for {os_name}.", file=sys.stderr)
+        return False
+
+    try:
+        result = subprocess.run(
+            tool, input=content, text=True, capture_output=True, encoding="utf-8"
+        )
+        if result.returncode == 0:
+            print(f"📋 Snapshot copied to clipboard via {Path(tool[0]).name}.")
+            return True
+        print(f"⚠️  Clipboard copy failed (exit {result.returncode}).", file=sys.stderr)
+        if result.stderr:
+            print(result.stderr.strip(), file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"⚠️  Clipboard error: {e}", file=sys.stderr)
+        return False
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    default_out = Path(tempfile.gettempdir()) / f"{Path.cwd().name}-llm.txt"
     ap = argparse.ArgumentParser(
-        description="Create llm.txt snapshot of this Git repo for LLM context."
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
+        "-o",
         "--out",
         type=Path,
-        default=Path(tempfile.gettempdir()) / f"{Path.cwd().name}-llm.txt",
-        help="Output file path (default: /tmp/<repo>-llm.txt)",
+        default=default_out,
+        help=f"Output file (default: {default_out})",
     )
     ap.add_argument(
+        "-k",
         "--max-kb",
         type=int,
         default=DEFAULT_SIZE_KB,
-        metavar="N",
-        help=f"Skip files larger than N KB (default {DEFAULT_SIZE_KB})",
+        metavar="KB",
+        help=f"Skip files > KB kilobytes (default {DEFAULT_SIZE_KB})",
     )
-    ap.add_argument("--quiet", action="store_true", help="Suppress echo to stdout.")
-    args = ap.parse_args()
+    ap.add_argument(
+        "--no-ipynb-truncate",
+        action="store_false",
+        dest="truncate_ipynb",
+        help="Keep Jupyter outputs instead of stripping them.",
+    )
+    ap.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Do not echo file contents to stdout.",
+    )
+    ap.add_argument(
+        "-c",
+        "--clipboard",
+        action="store_true",
+        help="Copy the snapshot to the system clipboard.",
+    )
+    return ap.parse_args()
 
+
+def main() -> None:
+    """Main program entry point."""
+    args = parse_args()
+    global NOTEBOOK_TRUNCATE
+    NOTEBOOK_TRUNCATE = args.truncate_ipynb
+
+    print(f"🔍 Collecting files (≤{args.max_kb} KB)…")
     paths = collect(args.max_kb)
     if not paths:
-        sys.exit("No files matched inclusion rules.")
+        sys.exit("❌ No files matched the inclusion rules or size limits.")
 
+    print(f"📝 Writing snapshot ({len(paths)} files)…")
     dump(paths, args.out, echo=not args.quiet, size_kb=args.max_kb)
-    print(f"\n✅ Snapshot written → {args.out}\ncatp && cat {args.out} | clip.exe")
+
+    if args.clipboard:
+        copy_to_clipboard(args.out)
+
+    print(f"\n✅ Snapshot complete → {args.out.resolve()}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nInterrupted.", file=sys.stderr)
+        sys.exit(130)

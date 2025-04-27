@@ -30,7 +30,10 @@
       create: true
 
 - shell:
-    - [git submodule update --init --recursive, Installing submodules]
+    - [
+        git submodule update --init --recursive --remote --checkout,
+        Installing submodules,
+      ]
     - [~/.dotfiles/fzf/install --all, Installing fzf]
     - [
         if ! command -v starship &>/dev/null; then
