@@ -21,6 +21,7 @@ creds
 curlimages
 CWORD
 cython
+Daytona
 debconf
 deepseek
 DIFFLINES
@@ -89,6 +90,7 @@ msal
 mypy
 nameserver
 nbformat
+nikolaik
 nodenext
 nosetests
 NPROCESSORS
@@ -97,6 +99,7 @@ Nuxt
 Ollama
 ONLN
 opencommit
+openhands
 openmost
 openpgp
 parsemrs
