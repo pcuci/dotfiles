@@ -12,6 +12,7 @@ fuser
 getent
 ifname
 inet
+lgproxy
 loongarch
 loongarch64
 MSYS
