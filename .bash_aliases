@@ -12,3 +12,4 @@ alias git-unset='git config --unset user.name; git config --unset user.email'
 alias gais='genaiscript'
 alias gen='genaiscript run'
 alias models="curl -s http://192.168.1.22:11434/api/tags | jq -r '.models[].name'"
+alias rs=repo-sync.py
