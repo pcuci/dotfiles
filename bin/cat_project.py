@@ -24,8 +24,6 @@ import os
 
 GLOB_INCLUDE = [
     "*.go",
-    "go.mod",
-    "go.sum",
     "Gopkg.toml",
     "Gopkg.lock",
     "Makefile",
@@ -138,6 +136,8 @@ EXCLUDE_FILE_PATTERNS = {
     "*lock.json",
     "pnpm-lock.yaml",
     "project.assets.json",
+    "go.mod",
+    "go.sum",
 }
 
 DEFAULT_SIZE_KB = 400
