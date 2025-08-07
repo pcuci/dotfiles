@@ -2,6 +2,7 @@ archi
 jirate
 onbe
 poff
+ROMELOGS
 ubisoft
 vstage
 vstages

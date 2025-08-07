@@ -1,6 +1,7 @@
 alefragnani
 armv
 CEINTL
+depositioncloud
 desudo
 dhclient
 dport
@@ -23,6 +24,7 @@ NOPASSWD
 passphraseless
 proxmoxve
 pulumi
+relayconfig
 shrc
 sluggify
 tmpl
