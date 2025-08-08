@@ -58,6 +58,7 @@ depo
 devstral
 DIFFLINES
 dind
+Distro
 dmypy
 dnsmasq
 dnsutils
@@ -265,6 +266,7 @@ Qdrant
 qwen
 releaserc
 resolv
+respawn
 reuseaddr
 rootfs
 ropeproject

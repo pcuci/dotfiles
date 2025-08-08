@@ -26,5 +26,7 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-byobu_sourced=1 . /usr/bin/byobu-launch 2>/dev/null || true
-
+# Only auto-launch Byobu on SSH logins, and not if we're already inside tmux
+if [[ -n "$SSH_CONNECTION" && -z "$TMUX" ]]; then
+  byobu_sourced=1 . /usr/bin/byobu-launch 2>/dev/null || true
+fi

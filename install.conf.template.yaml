@@ -28,6 +28,9 @@
     ~/.ssh/config.d:
       path: ssh/config.d
       create: true
+    ~/.byobu/.tmux.conf:
+      path: .tmux.conf
+      create: true
 
 - shell:
     - [

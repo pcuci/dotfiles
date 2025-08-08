@@ -48,8 +48,30 @@ export DISABLE_UPDATE_PROMPT=true
 # Set DISPLAY for WSL X11
 export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
 
-# Initialize keychain for SSH keys
-eval $(keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519)
+# Initialize keychain for SSH keys: one-time keychain init with lock + notice
+if [[ -z "$SSH_AUTH_SOCK" ]]; then
+  lock="$HOME/.cache/keychain.lock"
+  mkdir -p "$(dirname "$lock")"
+  exec 9>"$lock"
+
+  if flock -n 9; then
+    # First shell: start agent and export vars
+    eval "$(keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519)"
+  else
+    echo "[$$] Waiting for keychain lock: $lock"
+    for i in {1..20}; do
+      f="$HOME/.keychain/$(hostname -s)-sh"
+      if [[ -f "$f" ]]; then
+        # bring vars into *this* shell
+        # shellcheck disable=SC1090
+        . "$f"
+        break
+      fi
+      sleep 0.25
+    done
+    echo "[$$] Lock released, continuing…"
+  fi
+fi
 
 # Source FZF
 source ~/.fzf.bash

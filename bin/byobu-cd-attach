@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Accept argv or PROJ/DIR env
+proj="${1-}"; dir="${2-}"
+if [[ -z "${proj}" || -z "${dir}" ]]; then
+  proj="${PROJ-}"; dir="${DIR-}"
+fi
+
+if [[ -z "${proj}" || -z "${dir}" ]]; then
+  echo "byobu-cd-attach: missing PROJ/DIR" >&2
+  exec bash -il
+fi
+
+# Create the session with Byobu so its profile/theme loads
+if ! tmux has-session -t "$proj" 2>/dev/null; then
+  byobu new-session -d -s "$proj"
+  # Ensure new windows start in the project dir
+  tmux set-option -t "$proj" default-path "$dir" >/dev/null 2>&1 || true
+  # Put the first pane in the right dir (covers base-index 1 or 0)
+  tmux respawn-pane -t "$proj:1.1" -k -c "$dir" 2>/dev/null || \
+  tmux respawn-pane -t "$proj:0.0" -k -c "$dir" 2>/dev/null || true
+fi
+
+# Attach via byobu (for the UI)
+exec byobu attach -t "$proj"
