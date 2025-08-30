@@ -14,9 +14,13 @@ from .clipboard import copy_to_clipboard
 
 log = logging.getLogger(__name__)
 
-def setup_logging(quiet: bool) -> None:
+def setup_logging(quiet: bool, verbose: bool) -> None:
     """Configure logging based on verbosity."""
-    level = logging.WARNING if quiet else logging.INFO
+    level = logging.INFO
+    if quiet:
+        level = logging.WARNING
+    elif verbose:
+        level = logging.DEBUG
     logging.basicConfig(level=level, format="%(message)s", stream=sys.stderr)
     logging.getLogger("shutil").setLevel(logging.WARNING)
 
@@ -51,12 +55,29 @@ def parse_args() -> argparse.Namespace:
         help="Glob pattern(s) to select files, overriding defaults (e.g., '*.py' '**/*.js').",
     )
     ap.add_argument(
+        "-e", "--exclude",
+        nargs="+",
+        metavar="PATTERN",
+        help="Glob pattern(s) to exclude files. Adds to the default blocklist.",
+    )
+    ap.add_argument(
+        "-a", "--allow",
+        nargs="+",
+        metavar="PATTERN",
+        help="Disables a default exclusion pattern. Must be paired with an inclusion flag like --only.",
+    )
+    ap.add_argument(
         "--no-ipynb-truncate", action="store_false", dest="truncate_ipynb",
         help="Include Jupyter notebook outputs instead of stripping them.",
     )
-    ap.add_argument(
+    verbosity = ap.add_mutually_exclusive_group()
+    verbosity.add_argument(
         "-q", "--quiet", action="store_true",
         help="Suppress all informational output (echos to stderr).",
+    )
+    verbosity.add_argument(
+        "-v", "--verbose", action="store_true",
+        help="Enable detailed logging of file filtering decisions.",
     )
     ap.add_argument(
         "-c", "--clipboard", action="store_true",
@@ -72,7 +93,7 @@ def main() -> int:
     """Main program entry point."""
     try:
         args = parse_args()
-        setup_logging(args.quiet)
+        setup_logging(args.quiet, args.verbose)
 
         project_top_level_path = Path.cwd().resolve()
         max_depth_scan = float("inf") if args.depth == -1 else args.depth
@@ -93,6 +114,8 @@ def main() -> int:
             project_root=project_top_level_path,
             paths=args.paths,
             only_patterns=args.only,
+            exclude_patterns=args.exclude,
+            allow_patterns=args.allow,
         )
 
         if not files_to_dump:

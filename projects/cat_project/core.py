@@ -98,46 +98,74 @@ def collect(
     project_root: Path,
     paths: Optional[List[Path]] = None,
     only_patterns: Optional[List[str]] = None,
+    exclude_patterns: Optional[List[str]] = None,
+    allow_patterns: Optional[List[str]] = None,
 ) -> Tuple[List[Tuple[Path, Path]], List[Tuple[Path, int]]]:
     """Collect files, returning kept and skipped files."""
     kept_files: dict[Path, Path] = {}
     skipped_large: list[tuple[Path, int]] = []
-    total_files = 0
+    
+    # --- Start of Filtering Logic ---
+
+    # SETUP: Modify the rules based on user input
+    active_exclude_patterns = set(EXCLUDE_FILE_PATTERNS)
+    if allow_patterns:
+        log.debug(f"Disabling default excludes: {allow_patterns}")
+        active_exclude_patterns.difference_update(allow_patterns)
+
+    if exclude_patterns:
+        log.debug(f"Adding user excludes: {exclude_patterns}")
+        active_exclude_patterns.update(exclude_patterns)
 
     include_patterns = set(only_patterns) if only_patterns else set(GLOB_INCLUDE)
     scoped_paths = [p.resolve() for p in paths] if paths else []
-
+    
+    all_git_files = []
     for repo_root in repo_roots:
         log.info(f"ℹ️  Scanning Git repository at {repo_root}...")
-        files = git_files_in_repo(repo_root)
-        total_files += len(files)
-
-        for p_repo in files:
+        for p_repo in git_files_in_repo(repo_root):
             p_abs = (repo_root / p_repo).resolve()
             try:
                 p_display = p_abs.relative_to(project_root)
             except ValueError:
                 p_display = p_abs
+            all_git_files.append((p_abs, p_display))
+            
+    total_files = len(all_git_files)
+    
+    # The Filtering Pipeline
+    for p_abs, p_display in all_git_files:
+        if not p_abs.is_file():
+            continue
 
-            if not p_abs.is_file():
-                continue
-            if any(part in GLOB_EXCLUDE_DIRS for part in p_display.parts):
-                continue
-            if matches_any(Path(p_display.name), EXCLUDE_FILE_PATTERNS):
-                continue
-            if scoped_paths and not any(p_abs.is_relative_to(sp) for sp in scoped_paths):
-                continue
+        # STEP 1: The Great Wall (Exclusion Pass)
+        if any(part in GLOB_EXCLUDE_DIRS for part in p_display.parts):
+            log.debug(f"[{p_display}] SKIP: In excluded directory.")
+            continue
+        if matches_any(p_display, active_exclude_patterns):
+            log.debug(f"[{p_display}] SKIP: Matches exclude pattern.")
+            continue
 
-            if matches_any(p_display, include_patterns):
-                if within_size(p_abs, size_kb):
-                    if p_display not in kept_files:
-                        kept_files[p_display] = p_abs
-                else:
-                    try:
-                        size = p_abs.stat().st_size // 1024
-                    except OSError:
-                        size = -1
-                    skipped_large.append((p_display, size))
+        # STEP 2: The Velvet Rope (Inclusion Pass)
+        if scoped_paths and not any(p_abs.is_relative_to(sp) for sp in scoped_paths):
+            log.debug(f"[{p_display}] SKIP: Not in specified paths.")
+            continue
+        
+        if not matches_any(p_display, include_patterns):
+            log.debug(f"[{p_display}] SKIP: Does not match include pattern.")
+            continue
+
+        # If we get here, the file is kept, pending size check.
+        log.debug(f"[{p_display}] KEEP: Matched include patterns and passed all filters.")
+        if within_size(p_abs, size_kb):
+            if p_display not in kept_files:
+                kept_files[p_display] = p_abs
+        else:
+            try:
+                size = p_abs.stat().st_size // 1024
+            except OSError:
+                size = -1
+            skipped_large.append((p_display, size))
 
     log.info(f"ℹ️  Found {total_files} files across {len(repo_roots)} repo(s). Kept {len(kept_files)}.")
     return sorted(kept_files.items()), sorted(skipped_large)
