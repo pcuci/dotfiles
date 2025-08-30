@@ -27,6 +27,7 @@ celerybeat
 celltags
 CERTDIR
 charliermarsh
+charmbracelet
 chatmd
 checkmark
 checkpointer
@@ -104,6 +105,7 @@ gitutil
 glab
 globalconfig
 glrt
+gnueabihf
 GNUPGHOME
 goarch
 gobwas
@@ -151,12 +153,14 @@ ipython
 jellyfin
 joho
 jscoverage
+jsonfile
 jspm
 jstemmer
 junitfile
 keepalive
 keyrings
 keyserver
+KHTML
 knownhosts
 KREW
 kwargs
@@ -206,8 +210,10 @@ nikolaik
 nodeargs
 nodenext
 nosetests
+notty
 NPMJS
 NPROCESSORS
+nqry
 nuxi
 Nuxt
 nuxthub
@@ -256,6 +262,7 @@ pyflow
 pylance
 pypa
 pypackages
+PYPI
 pypoetry
 pyproject
 pytest
@@ -264,6 +271,7 @@ PYTHONUNBUFFERED
 pytype
 Qdrant
 qwen
+referer
 releaserc
 resolv
 respawn
@@ -279,6 +287,7 @@ sdist
 seabios
 sebdah
 SEMREL
+serper
 settingregistry
 setuptools
 SHASUMS
@@ -301,6 +310,7 @@ synchronisation
 tavily
 Templater
 termtest
+testcache
 testdata
 testutils
 timberio
