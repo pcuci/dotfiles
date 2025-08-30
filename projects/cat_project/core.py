@@ -2,6 +2,7 @@
 Core logic for the catp snapshot tool.
 Handles finding, filtering, collecting, and dumping files.
 """
+import fnmatch
 import json
 import logging
 import subprocess
@@ -66,9 +67,20 @@ def git_files_in_repo(repo_root: Path) -> list[Path]:
         return []
 
 def matches_any(path: Path, patterns: set[str]) -> bool:
-    """Return True if path matches any pattern."""
-    return any(path.match(p) for p in patterns if "/" in p or "**" in p) or \
-           any(Path(path.name).match(p) for p in patterns if "/" not in p and "**" not in p)
+    """
+    Return True if path matches any glob pattern.
+    - Patterns with '/' or '**' are matched against the full path.
+    - Simple patterns are matched against any component of the path.
+    """
+    path_parts = path.parts
+    for p in patterns:
+        if "/" in p or "**" in p:
+            if path.match(p):
+                return True
+        else:
+            if any(fnmatch.fnmatch(part, p) for part in path_parts):
+                return True
+    return False
 
 def within_size(path: Path, kb: int) -> bool:
     """Return True if file size is within the limit."""
@@ -105,9 +117,6 @@ def collect(
     kept_files: dict[Path, Path] = {}
     skipped_large: list[tuple[Path, int]] = []
     
-    # --- Start of Filtering Logic ---
-
-    # SETUP: Modify the rules based on user input
     active_exclude_patterns = set(EXCLUDE_FILE_PATTERNS)
     if allow_patterns:
         log.debug(f"Disabling default excludes: {allow_patterns}")
@@ -133,12 +142,10 @@ def collect(
             
     total_files = len(all_git_files)
     
-    # The Filtering Pipeline
     for p_abs, p_display in all_git_files:
         if not p_abs.is_file():
             continue
 
-        # STEP 1: The Great Wall (Exclusion Pass)
         if any(part in GLOB_EXCLUDE_DIRS for part in p_display.parts):
             log.debug(f"[{p_display}] SKIP: In excluded directory.")
             continue
@@ -146,7 +153,6 @@ def collect(
             log.debug(f"[{p_display}] SKIP: Matches exclude pattern.")
             continue
 
-        # STEP 2: The Velvet Rope (Inclusion Pass)
         if scoped_paths and not any(p_abs.is_relative_to(sp) for sp in scoped_paths):
             log.debug(f"[{p_display}] SKIP: Not in specified paths.")
             continue
@@ -155,7 +161,6 @@ def collect(
             log.debug(f"[{p_display}] SKIP: Does not match include pattern.")
             continue
 
-        # If we get here, the file is kept, pending size check.
         log.debug(f"[{p_display}] KEEP: Matched include patterns and passed all filters.")
         if within_size(p_abs, size_kb):
             if p_display not in kept_files:
