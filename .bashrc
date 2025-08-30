@@ -107,3 +107,5 @@ source ~/.bash_aliases
 
 # Initialize Starship prompt
 eval "$(starship init bash)"
+
+export PYTHONUTF8=1

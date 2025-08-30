@@ -26,13 +26,26 @@ def copy_to_clipboard(file_path: Path) -> bool:
     os_name = platform.system()
     tool: list[str] | None = None
 
+    # This more robust PowerShell command explicitly creates a UTF-8 stream reader.
+    ps_command = (
+        "$content = (New-Object System.IO.StreamReader([System.Console]::OpenStandardInput(), "
+        "[System.Text.Encoding]::UTF8)).ReadToEnd(); Set-Clipboard -Value $content"
+    )
+
     if os_name == "Windows" or (os_name == "Linux" and is_wsl()):
-        if shutil.which("clip.exe"): tool = ["clip.exe"]
+        if shutil.which("powershell.exe"):
+            tool = ["powershell.exe", "-NoProfile", "-Command", ps_command]
+        elif shutil.which("clip.exe"):
+            log.warning("⚠️  PowerShell not found. Falling back to clip.exe, which may corrupt emojis.")
+            tool = ["clip.exe"]
     elif os_name == "Darwin":
-        if shutil.which("pbcopy"): tool = ["pbcopy"]
+        if shutil.which("pbcopy"):
+            tool = ["pbcopy"]
     elif os_name == "Linux":
-        if shutil.which("wl-copy"): tool = ["wl-copy"]
-        elif shutil.which("xclip"): tool = ["xclip", "-selection", "clipboard"]
+        if shutil.which("wl-copy"):
+            tool = ["wl-copy"]
+        elif shutil.which("xclip"):
+            tool = ["xclip", "-selection", "clipboard"]
 
     if not tool:
         log.info(f"ℹ️  No clipboard tool found for {os_name} (WSL={is_wsl()}).")
