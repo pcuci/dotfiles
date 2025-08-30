@@ -7,6 +7,7 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
+from typing import List, Optional, Set, Tuple
 
 from .config import EXCLUDE_FILE_PATTERNS, GLOB_EXCLUDE_DIRS, GLOB_INCLUDE
 
@@ -92,12 +93,19 @@ def strip_ipynb(path: Path) -> str:
         return path.read_text(encoding="utf-8", errors="replace")
 
 def collect(
-    repo_roots: list[Path], size_kb: int, project_root: Path
-) -> tuple[list[tuple[Path, Path]], list[tuple[Path, int]]]:
+    repo_roots: List[Path],
+    size_kb: int,
+    project_root: Path,
+    paths: Optional[List[Path]] = None,
+    only_patterns: Optional[List[str]] = None,
+) -> Tuple[List[Tuple[Path, Path]], List[Tuple[Path, int]]]:
     """Collect files, returning kept and skipped files."""
     kept_files: dict[Path, Path] = {}
     skipped_large: list[tuple[Path, int]] = []
     total_files = 0
+
+    include_patterns = set(only_patterns) if only_patterns else set(GLOB_INCLUDE)
+    scoped_paths = [p.resolve() for p in paths] if paths else []
 
     for repo_root in repo_roots:
         log.info(f"ℹ️  Scanning Git repository at {repo_root}...")
@@ -111,11 +119,16 @@ def collect(
             except ValueError:
                 p_display = p_abs
 
-            if not p_abs.is_file(): continue
-            if any(part in GLOB_EXCLUDE_DIRS for part in p_display.parts): continue
-            if matches_any(Path(p_display.name), EXCLUDE_FILE_PATTERNS): continue
+            if not p_abs.is_file():
+                continue
+            if any(part in GLOB_EXCLUDE_DIRS for part in p_display.parts):
+                continue
+            if matches_any(Path(p_display.name), EXCLUDE_FILE_PATTERNS):
+                continue
+            if scoped_paths and not any(p_abs.is_relative_to(sp) for sp in scoped_paths):
+                continue
 
-            if matches_any(p_display, GLOB_INCLUDE):
+            if matches_any(p_display, include_patterns):
                 if within_size(p_abs, size_kb):
                     if p_display not in kept_files:
                         kept_files[p_display] = p_abs
@@ -128,6 +141,7 @@ def collect(
 
     log.info(f"ℹ️  Found {total_files} files across {len(repo_roots)} repo(s). Kept {len(kept_files)}.")
     return sorted(kept_files.items()), sorted(skipped_large)
+
 
 def dump(
     files_to_dump: list[tuple[Path, Path]],
@@ -156,7 +170,9 @@ def dump(
                     content = f"# ERROR reading {posix_path}: {exc}\n"
                     log.warning(content.strip())
 
-                content = content.rstrip() + "\n"
+                if content:
+                    content = content.rstrip() + "\n"
+
                 if echo:
                     sys.stderr.write(content)
                 dst.write(content)

@@ -31,12 +31,24 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
+        "paths",
+        nargs="*",
+        type=Path,
+        help="Paths to include (e.g., src/ tests/). If empty, scans the current directory.",
+    )
+    ap.add_argument(
         "-o", "--out", type=Path, default=default_out,
         help=f"Output file path (default: {default_out})",
     )
     ap.add_argument(
         "-k", "--max-kb", type=int, default=config.DEFAULT_SIZE_KB, metavar="KB",
         help=f"Maximum file size in kilobytes (default: {config.DEFAULT_SIZE_KB} KB)",
+    )
+    ap.add_argument(
+        "--only",
+        nargs="+",
+        metavar="PATTERN",
+        help="Glob pattern(s) to select files, overriding defaults (e.g., '*.py' '**/*.js').",
     )
     ap.add_argument(
         "--no-ipynb-truncate", action="store_false", dest="truncate_ipynb",
@@ -73,17 +85,21 @@ def main() -> int:
             return 1
 
         log.info(f"ℹ️  Identified {len(repo_roots)} Git repository root(s) to scan.")
-        log.info(f"🔍 Collecting files (max size: {args.max_kb} KB)...")
+        log.info(f"🔍  Collecting files (max size: {args.max_kb} KB)...")
 
         files_to_dump, skipped_large = core.collect(
-            repo_roots, args.max_kb, project_top_level_path
+            repo_roots=repo_roots,
+            size_kb=args.max_kb,
+            project_root=project_top_level_path,
+            paths=args.paths,
+            only_patterns=args.only,
         )
 
         if not files_to_dump:
             log.error("❌ No files matched the inclusion criteria or size limits.")
             return 1
 
-        log.info(f"📝 Writing snapshot of {len(files_to_dump)} files to {args.out}...")
+        log.info(f"✍️ Writing snapshot of {len(files_to_dump)} files to {args.out}...")
         core.dump(
             files_to_dump=files_to_dump,
             skipped_large=skipped_large,
@@ -97,11 +113,11 @@ def main() -> int:
             if not copy_to_clipboard(args.out):
                 log.warning(f"⚠️  Could not copy to clipboard. The snapshot is at {args.out.resolve()}")
 
-        log.info(f"\n✅ Snapshot complete → {args.out.resolve()}")
+        log.info(f"\n✅ Snapshot complete 🚀 {args.out.resolve()}")
         return 0
 
     except KeyboardInterrupt:
-        print("\n🚫 Operation cancelled by user.", file=sys.stderr)
+        print("\n🛑 Operation cancelled by user.", file=sys.stderr)
         return 130
     except Exception as e:
         logging.critical(f"\n💥 An unexpected error occurred: {e}", exc_info=True)

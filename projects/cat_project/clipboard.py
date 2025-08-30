@@ -3,6 +3,7 @@ Clipboard utilities for copying snapshot content.
 Supports Windows, WSL, macOS, and Linux (wl-copy/xclip).
 """
 import logging
+import os
 import platform
 import shutil
 import subprocess
