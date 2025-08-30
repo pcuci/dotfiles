@@ -1,6 +1,5 @@
 alias ls='ls -F --color'
 alias f=fabric.sh
-alias catp=cat_project.py
 alias k=kubectl
 alias op-in='eval $(op signin my)'
 alias op-out='op signout && unset OP_SESSION_my'
