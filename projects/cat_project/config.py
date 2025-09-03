@@ -77,6 +77,7 @@ GLOB_EXCLUDE_DIRS = {
     ".vs",
     ".vscode",
     "vendor",
+    "_next"
 }
 
 # File name patterns to exclude.
