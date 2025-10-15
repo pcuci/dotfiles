@@ -30,3 +30,6 @@ fi
 if [[ -n "$SSH_CONNECTION" && -z "$TMUX" ]]; then
   byobu_sourced=1 . /usr/bin/byobu-launch 2>/dev/null || true
 fi
+
+if [ -n "$DISPLAY" ] && printf %s "$DISPLAY" | grep -qE '^127\.'; then export DISPLAY=:0; fi
+[ -z "$XAUTHORITY" ] && export XAUTHORITY="$HOME/.Xauthority"
