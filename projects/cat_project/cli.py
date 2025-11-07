@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 
 from . import config, core
-from .clipboard import copy_to_clipboard
+from .clipboard import copy_file_to_clipboard
 
 log = logging.getLogger(__name__)
 
@@ -84,6 +84,10 @@ def parse_args() -> argparse.Namespace:
         help="Copy the final snapshot content to the system clipboard.",
     )
     ap.add_argument(
+        "--clipboard-timeout", type=float, default=10.0, metavar="SECONDS",
+        help="Timeout for clipboard copy operations (default: 10.0s).",
+    )
+    ap.add_argument(
         "-d", "--depth", type=int, default=0, metavar="N",
         help="Scan for Git repositories up to N levels deep (-1 for infinite).",
     )
@@ -133,8 +137,10 @@ def main() -> int:
         )
 
         if args.clipboard:
-            if not copy_to_clipboard(args.out):
-                log.warning(f"⚠️  Could not copy to clipboard. The snapshot is at {args.out.resolve()}")
+            if not copy_file_to_clipboard(args.out, timeout_s=args.clipboard_timeout):
+                # A hard failure from the clipboard module is a fatal error.
+                log.error("❌ Clipboard operation failed. The snapshot file is at %s", args.out.resolve())
+                return 1
 
         log.info(f"\n✅ Snapshot complete 🚀 {args.out.resolve()}")
         return 0

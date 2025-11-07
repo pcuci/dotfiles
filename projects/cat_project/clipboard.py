@@ -9,7 +9,7 @@ Public API (backwards-compatible):
 Supports:
 - Windows / WSL (clip.exe, PowerShell Set-Clipboard)
 - macOS (pbcopy)
-- Linux Wayland (wl-copy)
+- Linux Wayland (wl-copy --paste-once)
 - Linux X11 (xsel preferred, xclip non-blocking with -loops 1)
 - OSC52 terminal escape as last-resort (tmux/SSH-friendly)
 """
@@ -22,7 +22,7 @@ import platform
 import shutil
 import subprocess
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 log = logging.getLogger(__name__)
 
@@ -40,50 +40,6 @@ def env_summary() -> str:
     keys = ["XDG_SESSION_TYPE", "DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY", "SSH_CONNECTION", "WSL_DISTRO_NAME"]
     return "; ".join(f"{k}={os.environ.get(k, '')}" for k in keys)
 
-def fix_display_env() -> None:
-    """
-    Best-effort local X11 defaults when DISPLAY is bogus (Linux native only).
-    Skips on WSL (use Windows clipboard) and when Wayland is present.
-    """
-    if platform.system() != "Linux" or is_wsl():
-        return
-    if os.environ.get("WAYLAND_DISPLAY"):
-        return
-
-    disp = os.environ.get("DISPLAY", "")
-    if (not disp) or disp.startswith("127."):
-        os.environ["DISPLAY"] = ":0"
-        log.debug("Set DISPLAY=:0 (auto-fix)")
-
-    os.environ.setdefault("XAUTHORITY", str(Path.home() / ".Xauthority"))
-
-    # Try to allow local user once; ignore errors.
-    if shutil.which("xhost") and os.environ.get("DISPLAY", "").startswith(":"):
-        try:
-            user = os.environ.get("USER") or os.environ.get("LOGNAME", "")
-            if user:
-                subprocess.run(
-                    ["xhost", f"+SI:localuser:{user}"],
-                    check=False, capture_output=True, text=True, timeout=3
-                )
-        except Exception as e:
-            log.debug("xhost probe failed: %s", e)
-
-def can_use_xclip() -> Tuple[bool, str]:
-    disp = os.environ.get("DISPLAY", "")
-    if not disp:
-        return False, "DISPLAY is empty"
-    if disp.startswith("127."):
-        return False, f"DISPLAY looks wrong: {disp}"
-    if disp.startswith(":"):
-        # Validate socket for :0, :1, ...
-        idx = disp.split(":", 1)[1]
-        idx = idx.split(".", 1)[0]  # :0.0 -> 0
-        sock = f"/tmp/.X11-unix/X{idx}"
-        if not os.path.exists(sock):
-            return False, f"X socket missing: {sock}"
-    return True, "DISPLAY looks usable"
-
 def which(name: str) -> str | None:
     p = shutil.which(name)
     log.debug("which(%s) -> %s", name, p)
@@ -91,10 +47,45 @@ def which(name: str) -> str | None:
 
 # ------------ Execution helpers ------------
 
-def run_tool(cmd: List[str], content: str, timeout_s: float) -> bool:
-    """Run a clipboard command with stdin content and timeout; log results."""
+def run_tool_with_file_input(cmd: list[str], file_path: Path, timeout_s: float) -> bool:
+    """Run a clipboard command with stdin from a file; log results."""
     name = Path(cmd[0]).name
-    log.debug("Running %s (timeout=%.1fs) with env: %s", cmd, timeout_s, env_summary())
+    log.debug("Running %s with stdin from %s (timeout=%.1fs)", cmd, file_path, timeout_s)
+    try:
+        with file_path.open("r", encoding="utf-8", errors="replace") as f_in:
+            p = subprocess.run(
+                cmd,
+                stdin=f_in,
+                text=True,
+                capture_output=True,
+                timeout=timeout_s,
+                check=False,
+            )
+    except subprocess.TimeoutExpired:
+        log.warning("⚠️  %s timed out after %.1fs with input from %s.", name, timeout_s, file_path)
+        return False
+    except FileNotFoundError:
+        log.debug("Not found: %s", name)
+        return False
+    except Exception as e:
+        log.warning("⚠️  %s error with input from %s: %s", name, file_path, e)
+        return False
+
+    stderr = (p.stderr or "").strip()
+    if p.returncode == 0:
+        log.info("📋 Copied via %s from %s. Stderr: '%s'", name, file_path.name, stderr)
+        return True
+
+    if stderr:
+        log.warning("⚠️  %s failed (exit %s). stderr: %s", name, p.returncode, stderr)
+    else:
+        log.warning("⚠️  %s failed (exit %s).", name, p.returncode)
+    return False
+
+def run_tool(cmd: List[str], content: str, timeout_s: float) -> bool:
+    """Run a clipboard command with stdin content; for in-memory fallbacks."""
+    name = Path(cmd[0]).name
+    log.debug("Running %s with in-memory content (timeout=%.1fs)", cmd, timeout_s)
     try:
         p = subprocess.run(
             cmd,
@@ -108,17 +99,17 @@ def run_tool(cmd: List[str], content: str, timeout_s: float) -> bool:
         log.warning("⚠️  %s timed out after %.1fs.", name, timeout_s)
         return False
     except FileNotFoundError:
-        log.warning("⚠️  Not found: %s", name)
+        log.debug("Not found: %s", name)
         return False
     except Exception as e:
         log.warning("⚠️  %s error: %s", name, e)
         return False
 
+    stderr = (p.stderr or "").strip()
     if p.returncode == 0:
-        log.info("📋 Copied via %s.", name)
+        log.info("📋 Copied via %s (in-memory). Stderr: '%s'", name, stderr)
         return True
 
-    stderr = (p.stderr or "").strip()
     if stderr:
         log.warning("⚠️  %s failed (exit %s). stderr: %s", name, p.returncode, stderr)
     else:
@@ -126,16 +117,10 @@ def run_tool(cmd: List[str], content: str, timeout_s: float) -> bool:
     return False
 
 def run_xclip_background(content: str) -> bool:
-    """
-    Non-blocking xclip: keep data for one paste and return immediately.
-    Requires a sane DISPLAY/XAUTHORITY; we verify before spawning.
-    """
-    ok, why = can_use_xclip()
-    log.debug("xclip guard: ok=%s, why=%s", ok, why)
-    if not ok:
-        log.warning("xclip skipped: %s", why)
+    """Non-blocking xclip requires in-memory content."""
+    if not which("xclip"):
+        log.debug("Not found: xclip")
         return False
-
     try:
         p = subprocess.Popen(
             ["xclip", "-selection", "clipboard", "-i", "-quiet", "-loops", "1"],
@@ -149,24 +134,15 @@ def run_xclip_background(content: str) -> bool:
         p.stdin.close()
         log.info("📋 xclip started in background (exits after first paste).")
         return True
-    except FileNotFoundError:
-        log.warning("⚠️  Not found: xclip")
-        return False
     except Exception as e:
         log.warning("⚠️  xclip spawn failed: %s", e)
         return False
 
-# ------------ OSC52 fallback ------------
-
 def osc52_copy(text: str) -> bool:
-    """
-    Copy using OSC52 escape sequence (terminal clipboard).
-    Works in many terminals and tmux (if set-clipboard on).
-    """
+    """OSC52 escape sequence requires in-memory content."""
     try:
         data = base64.b64encode(text.encode("utf-8")).decode("ascii")
         seq = f"\033]52;c;{data}\a"
-        # Write to controlling TTY so it reaches the terminal even under tmux
         with open("/dev/tty", "w", encoding="utf-8", errors="ignore") as tty:
             tty.write(seq)
             tty.flush()
@@ -179,90 +155,92 @@ def osc52_copy(text: str) -> bool:
 # ------------ Public API ------------
 
 def copy_text_to_clipboard(text: str, *, timeout_s: float = 10.0, enable_osc52: bool = True) -> bool:
-    """
-    Copy arbitrary text to the system clipboard (or terminal clipboard).
-    Returns True on success.
-    """
+    """Copy arbitrary text to the clipboard using in-memory methods."""
     os_name = platform.system()
     wsl = is_wsl()
     log.debug("copy_text_to_clipboard start: OS=%s WSL=%s env: %s", os_name, wsl, env_summary())
 
-    # Windows native or WSL using Windows interop
     if os_name == "Windows" or (os_name == "Linux" and wsl):
-        # Prefer clip.exe (fast), then PowerShell Set-Clipboard (robust)
-        clip = which("clip.exe")
-        if clip and run_tool([clip], text, timeout_s):
+        if which("clip.exe") and run_tool(["clip.exe"], text, timeout_s):
             return True
-        ps = which("powershell.exe")
-        if ps:
-            ps_command = (
-                "$c=(New-Object System.IO.StreamReader([Console]::OpenStandardInput(),"
-                "[Text.Encoding]::UTF8)).ReadToEnd();"
-                "Set-Clipboard -Value $c"
-            )
-            if run_tool([ps, "-NoProfile", "-Command", ps_command], text, timeout_s):
+        if which("powershell.exe"):
+            ps_cmd = "Set-Clipboard -Value $input"
+            if run_tool(["powershell.exe", "-NoProfile", "-Command", ps_cmd], text, timeout_s):
                 return True
-        # Fall through; may still try OSC52 if enabled.
 
-    # macOS
     if os_name == "Darwin":
-        pbc = which("pbcopy")
-        if pbc and run_tool([pbc], text, timeout_s):
+        if which("pbcopy") and run_tool(["pbcopy"], text, timeout_s):
             return True
 
-    # Linux Wayland first
-    wl = which("wl-copy")
-    if wl and os.environ.get("WAYLAND_DISPLAY"):
-        if run_tool([wl], text, timeout_s):
+    if os.environ.get("WAYLAND_DISPLAY"):
+        wl = which("wl-copy")
+        if not wl:
+            log.error("❌ Wayland session detected, but 'wl-copy' is not installed.")
+            return False
+        if run_tool([wl, "--paste-once"], text, timeout_s):
             return True
 
-    # Linux X11 path (heal env, then xsel, then xclip background)
     if os_name == "Linux" and not os.environ.get("WAYLAND_DISPLAY"):
-        fix_display_env()
-
-        xsel = which("xsel")
-        if xsel and run_tool([xsel, "--clipboard", "--input"], text, timeout_s):
+        if which("xsel") and run_tool(["xsel", "--clipboard", "--input"], text, timeout_s):
+            return True
+        if run_xclip_background(text):
             return True
 
-        xclip = which("xclip")
-        if xclip and run_xclip_background(text):
-            return True
-
-    # OSC52 terminal escape as last resort
     if enable_osc52 and osc52_copy(text):
         return True
 
-    log.warning("⚠️  All clipboard strategies failed. Env: %s", env_summary())
+    log.warning("⚠️  All in-memory clipboard strategies failed.")
     return False
 
 def copy_file_to_clipboard(file_path: Path, *, timeout_s: float = 10.0, enable_osc52: bool = True) -> bool:
     """
-    Read UTF-8 text from file and copy to clipboard.
-    Returns True on success.
+    Copy a file to the clipboard, preferring efficient file-based piping.
+    Falls back to in-memory methods if needed.
     """
+    os_name = platform.system()
+    log.debug("copy_file_to_clipboard start: attempting efficient file-pipe for %s", file_path)
+
+    if os.environ.get("WAYLAND_DISPLAY"):
+        wl = which("wl-copy")
+        if not wl:
+            log.error("❌ Wayland session detected, but 'wl-copy' is not installed.")
+            log.error("   Please install it via your package manager (e.g., 'sudo apt install wl-clipboard').")
+            return False
+        if run_tool_with_file_input([wl, "--paste-once"], file_path, timeout_s):
+            return True
+
+    # --- Strategy 1: Fast, file-based piping for other native tools ---
+    if os_name == "Windows" or is_wsl():
+        if which("clip.exe") and run_tool_with_file_input(["clip.exe"], file_path, timeout_s):
+            return True
+
+    if os_name == "Darwin":
+        if which("pbcopy") and run_tool_with_file_input(["pbcopy"], file_path, timeout_s):
+            return True
+
+    if os_name == "Linux" and not os.environ.get("WAYLAND_DISPLAY"):
+        if which("xsel") and run_tool_with_file_input(["xsel", "--clipboard", "--input"], file_path, timeout_s):
+            return True
+
+    # --- Strategy 2: Fallback to in-memory for remaining tools ---
+    log.debug("File-based copy failed or not applicable, falling back to in-memory.")
     try:
         content = file_path.read_text(encoding="utf-8")
-        log.debug("Read %d chars from %s", len(content), file_path)
     except Exception as e:
-        log.warning("⚠️  Cannot read %s: %s", file_path, e)
+        log.warning("⚠️  Cannot read %s for fallback copy: %s", file_path, e)
         return False
-
+    
     return copy_text_to_clipboard(content, timeout_s=timeout_s, enable_osc52=enable_osc52)
 
 # ---- Legacy name (backwards compatibility) ----
-
 def copy_to_clipboard(file_path: Path) -> bool:
-    """
-    Legacy wrapper kept for compatibility with older imports.
-    Equivalent to copy_file_to_clipboard(file_path).
-    """
+    """Legacy wrapper kept for compatibility with older imports."""
     return copy_file_to_clipboard(file_path)
 
 # ------------ CLI (optional) ------------
-
 if __name__ == "__main__":
     import argparse, sys
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     ap = argparse.ArgumentParser(description="Copy text or a file's contents to the clipboard.")
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("-t", "--text", help="Raw text to copy")
