@@ -15,8 +15,10 @@ apputils
 archs
 argjson
 asyncpg
+autoplan
 autoremove
 autoresize
+awslabs
 awsx
 bashdefault
 basicauth
@@ -29,6 +31,7 @@ BLAS
 bootdisk
 boto
 bradlc
+Breakglass
 buildcache
 BUILDKIT
 buildx
@@ -39,6 +42,7 @@ cdrom
 celerybeat
 celltags
 CERTDIR
+certificaterequest
 charliermarsh
 charmbracelet
 chatmd
@@ -46,9 +50,11 @@ checkmark
 checkpointer
 chglog
 chgrp
+choco
 CLIENTID
 cloneable
 cloudinit
+clusterissuers
 colours
 comcom
 Connor
@@ -57,10 +63,12 @@ covermode
 coverpkg
 coverprofile
 cpath
+crds
 CRDT
 creds
 csvg
 curlimages
+customdata
 Customisation
 customise
 CWORD
@@ -110,8 +118,10 @@ evals
 EVENTBUS
 eventsource
 exoscale
+externalsecret
 façade
 fastapi
+FASTMCP
 fatih
 fdfind
 filechat
@@ -119,6 +129,7 @@ forkable
 fusermount
 fuzztime
 gais
+gavinbunney
 gcfg
 genai
 genaiscript
@@ -172,6 +183,9 @@ HIPCXX
 HITL
 hkps
 hostable
+hostedzone
+hoverinfo
+hovertemplate
 HRIS
 htmlcov
 huggingface
@@ -180,6 +194,7 @@ hw
 iconify
 iconsets
 importdisk
+imshow
 indocker
 initialised
 inmem
@@ -204,14 +219,17 @@ KHTML
 knownhosts
 KREW
 kubeconfig
+kubecontext
 kwargs
 labextension
 LANGCHAIN
 Langfuse
 langgraph
 langgraphjs
+langraph
 langsmith
 ldflags
+letsencrypt
 levelname
 libc
 libgcc
@@ -260,6 +278,7 @@ Nemotron
 netcat
 netem
 nikolaik
+nindent
 njpwerner
 nodeargs
 nodenext
@@ -301,6 +320,7 @@ pipenv
 Pipfile
 pipx
 pkgname
+plotlyjs
 POSTLOGOUT
 poststart
 preclone
@@ -309,6 +329,7 @@ Procfile
 projs
 promptui
 protobufjs
+psql
 psycopg
 pterm
 pulumiverse
@@ -333,6 +354,7 @@ pytype
 pyyaml
 Qdrant
 qwen
+radialaxis
 RDNA
 referer
 releaserc
@@ -342,8 +364,10 @@ reuseaddr
 rocm
 rootfs
 ropeproject
+runbook
 runcmd
 sandboxed
+Scatterpolar
 scrapy
 scriptable
 scsi
@@ -353,15 +377,20 @@ seabios
 sebdah
 SEMREL
 serper
+serviceaccount
 settingregistry
 setuptools
 SHASUMS
 shiki
+showlegend
+showupperhalf
+signup
 silversearcher
 slugified
 snupkg
 socat
 sonarjs
+SPLOM
 Spyder
 spyderproject
 spyproject
@@ -386,6 +415,7 @@ testdata
 testutils
 tfstate
 tfvars
+tickformat
 Tiltfile
 timberio
 timeslots
@@ -396,9 +426,11 @@ tlscert
 tlskey
 tlsverify
 tmpfs
+toks
 tonistiigi
 toplevel
 torrenting
+toself
 Traefik
 Triaging
 tseslint
@@ -422,6 +454,7 @@ vektra
 venv
 venvs
 Vercel
+Viridis
 virt
 virtio
 virtualenv
@@ -429,6 +462,8 @@ VIRTUALENVS
 visualstudioexptteam
 vite
 vitest
+vmax
+vmin
 vscodeintellicode
 vuepress
 vuetify
@@ -452,3 +487,4 @@ ydoc
 ymcki
 yourtoken
 youruser
+ΔSSR

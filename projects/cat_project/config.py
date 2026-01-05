@@ -28,6 +28,17 @@ GLOB_INCLUDE = [
     "*.tsx",
     "*.vue",
     "*.hcl",
+    # --- Terraform ---
+    "*.tf",
+    "*.tfvars",
+    # --- Helm / Kubernetes ---
+    "*.tpl",         # Critical for Helm _helpers.tpl
+    ".helmignore",
+    # --- Scripts & Config ---
+    "*.sh",          # Needed for bastion-init.sh
+    "*.bash",
+    ".gitignore",
+    ".env.example",  # Safe environment examples
     "*.yml",
     "*.yaml",
     "pnpm-lock.yaml",
@@ -73,7 +84,9 @@ GLOB_EXCLUDE_DIRS = {
     ".vs",
     ".vscode",
     "vendor",
-    "_next"
+    "_next",
+    # --- Terraform Cache ---
+    ".terraform",    # Excludes providers/module cache
 }
 
 # File name patterns to exclude.
