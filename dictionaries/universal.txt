@@ -234,6 +234,7 @@ libgcc
 libguestfs
 libpam
 libstdc
+linkwarden
 litellm
 llms
 localdev
