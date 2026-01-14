@@ -132,9 +132,6 @@ gais
 gavinbunney
 gcfg
 genai
-genaiscript
-genaiscripts
-genaisrc
 getconf
 getenv
 GGUF
@@ -174,6 +171,7 @@ hasattr
 headlessui
 healthcheck
 healthz
+helmignore
 heroicons
 hinshun
 hipblas

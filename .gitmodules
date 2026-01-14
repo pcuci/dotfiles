@@ -15,7 +15,3 @@
 	path = starship-gruvbox-rainbow
 	url = https://github.com/fang2hou/starship-gruvbox-rainbow
 	branch = main 
-[submodule "genaiscript"]
-	path = genaiscript
-	url = https://gitlab.com/deposition.cloud/libs/genaiscript.git
-	branch = main

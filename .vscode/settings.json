@@ -4,27 +4,21 @@
     "MYHOSTS"
   ],
   "cSpell.customDictionaries": {
-    "universal": {
-      "name": "universal",
-      "path": "~/.dotfiles/dictionaries/universal.txt",
-      "scope": "workspace",
-      "addWords": true
-    },
     "deposition": {
       "name": "deposition",
       "path": "~/.dotfiles/dictionaries/deposition.txt",
       "scope": "workspace",
       "addWords": true
     },
-    "ubisoft": {
-      "name": "ubisoft",
-      "path": "~/.dotfiles/dictionaries/ubisoft.txt",
+    "jetscale": {
+      "name": "jetscale",
+      "path": "~/.dotfiles/dictionaries/jetscale.txt",
       "scope": "workspace",
       "addWords": true
     },
-    "science": {
-      "name": "science",
-      "path": "~/.dotfiles/dictionaries/science.txt",
+    "personal": {
+      "name": "personal",
+      "path": "~/.dotfiles/dictionaries/personal.txt",
       "scope": "workspace",
       "addWords": true
     },
@@ -34,9 +28,15 @@
       "scope": "workspace",
       "addWords": true
     },
-    "personal": {
-      "name": "personal",
-      "path": "~/.dotfiles/dictionaries/personal.txt",
+    "ubisoft": {
+      "name": "ubisoft",
+      "path": "~/.dotfiles/dictionaries/ubisoft.txt",
+      "scope": "workspace",
+      "addWords": true
+    },
+    "universal": {
+      "name": "universal",
+      "path": "~/.dotfiles/dictionaries/universal.txt",
       "scope": "workspace",
       "addWords": true
     }
