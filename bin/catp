@@ -6,15 +6,15 @@ from pathlib import Path
 script_dir = Path(__file__).resolve().parent
 project_root = script_dir.parent
 
-# The directory containing your package is 'projects/'.
+# The directory containing your package is 'tools/'.
 # We add this to the Python path.
-package_search_path = project_root / 'projects'
+package_search_path = project_root / 'tools'
 sys.path.insert(0, str(package_search_path))
 
-# Now that Python knows to look inside the 'projects' directory,
-# we can import 'cat_project' and its 'main' function.
-# NOTE: The package name is taken from the directory name 'cat_project'.
-from cat_project.cli import main
+# Now that Python knows to look inside the 'tools' directory,
+# we can import 'catp' and its 'main' function.
+# NOTE: The package name is taken from the directory name 'catp'.
+from catp.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())

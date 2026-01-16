@@ -2,24 +2,24 @@
 
 **Status:** Active
 **Governing Invariant:** `Ethos/Purpose` (Teleology)
-**Last Updated:** 2026-01-15
+**Last Updated:** 2026-01-15 (Phase 1 Completed)
 
 This document defines the trajectory of the `.dotfiles` repository. Every action below is bound by a specific Eudaimonia Invariant to ensure architectural integrity.
 
 ---
 
-## 📅 Phase 1: The Fracture Plane (Decoupling)
+## 📅 Phase 1: The Fracture Plane (Decoupling) ✅ **COMPLETED**
 
 **Goal:** Isolate the custom `catp` tooling from the configuration state.
 **Primary Invariant:** `Ethos/Identity` (Separation of Concerns) — *The identity of the environment (dotfiles) must be distinct from the identity of the tools (software).*
 
-- [ ] **Isolate Source:** Move `projects/cat_project` to `tools/catp`.
+- [x] **Isolate Source:** Move `projects/cat_project` to `tools/catp`.
     - *Why:* **`Logos/Prudence` (Right-Sizing)** — Reduces the "blast radius" of the dotfiles repo; tool development shouldn't pollute config history.
-- [ ] **Standardize Entry:** Create a `pyproject.toml` for `catp`.
+- [x] **Standardize Entry:** Create a `pyproject.toml` for `catp`.
     - *Why:* **`Logos/Clarity` (Standard Conventions)** — Replaces implicit directory structures with explicit, standard Python packaging metadata.
-- [ ] **Bootstrap Independence:** Update install logic to use `pipx` or `uv tool install`.
+- [x] **Bootstrap Independence:** Update install logic to use `pipx` or `uv tool install`.
     - *Why:* **`Praxis/Wisdom` (Sustainability)** — Decouples tool dependencies from the system Python, preventing "dependency hell."
-- [ ] **Documentation:** Create `tools/catp/README.md` defining its CLI interface.
+- [x] **Documentation:** Create `tools/catp/README.md` defining its CLI interface.
     - *Why:* **`Praxis/Symbiosis` (Legibility)** — A tool cannot be a good partner to the user if its interface is undocumented.
 
 **✅ Exit Criteria:**
