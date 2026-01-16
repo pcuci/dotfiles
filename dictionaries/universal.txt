@@ -191,6 +191,7 @@ humao
 hw
 iconify
 iconsets
+imaginaryclient
 importdisk
 imshow
 indocker

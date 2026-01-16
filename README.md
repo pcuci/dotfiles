@@ -1,41 +1,53 @@
+# .dotfiles (Sovereign Edition)
 
-# ~/.*
+**Status:** Modernization in Progress (See `ROADMAP.md`)
+**Governing Invariant:** `Ethos/Identity`
 
-Portable dotfiles for a consistent and familiar workflow
+A portable, sovereign configuration environment and tooling suite.
+
+## 🗺️ Architecture
+
+This repository is organized into three distinct domains, ensuring **Separation of Concerns** (`Ethos/Identity`):
+
+1.  **Configuration State (The "Dotfiles")**
+    - Managed via `Dotbot`.
+    - Defined in `install.conf.template.yaml`.
+    - Targets: `~/.bashrc`, `~/.gitconfig`, `~/.ssh/config`.
+
+2.  **Sovereign Tooling (The "Tools")**
+    - **`catp`**: A context-aware snapshot tool for LLM workflows.
+    - Located in `tools/catp/`.
+    - *See Phase 1 of Roadmap for decoupling plans.*
+
+3.  **Bootstrapping (The "Lift")**
+    - Scripts to elevate a fresh machine to a configured state.
+
+## 🚀 Bootstrap
+
+**Prerequisites:**
+- Git
+- Python 3.10+
+- `pipx` (recommended) or `uv`
 
 ```bash
-git clone https://github.com/pcuci/dotfiles.git ~/.dotfiles && cd ~/.dotfiles
+git clone https://github.com/pcuci/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 ./install
 ```
 
-Set up SSH keys.
+## 🛠️ Tooling Usage (`catp`)
+
+`catp` is a tool included in this suite to snapshot codebases for AI context.
 
 ```bash
-cd ~/.dotfiles
-./generate-ssh-keys
+# Install (Current: Phase 1 Pending)
+pip install -e tools/catp
+
+# Usage
+catp --help
+catp . --out context.txt
 ```
 
-Register new keys with GitHub and GitLab:
+## 📜 License
 
-- [GitHub SSH Keys](https://github.com/settings/keys)
-- [GitLab SSH Keys](https://gitlab.com/-/profile/keys)
-
-Synchronize SSH configurations between host and guest systems.
-
-```bash
-cd ~/.dotfiles
-./ssh_sync --from=host --to=wsl --host-username=pcuciureanu # or pcuci
-# ./ssh_sync --from=wsl --to=host --host-username=pcuciureanu
-```
-
-Update git remotes.
-
-```bash
-cd ~/.dotfiles
-git remote set-url origin git@github.com:pcuci/dotfiles.git
-git remote -v # to confirm changes
-```
-
-## License
-
-Ethically sourced under the [Atmosphere License](https://www.open-austin.org/atmosphere-license/)—like open source, for good.
+Ethically sourced under the [Atmosphere License](https://www.open-austin.org/atmosphere-license/).
