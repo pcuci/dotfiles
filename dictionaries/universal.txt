@@ -67,6 +67,7 @@ crds
 CRDT
 creds
 csvg
+ctlptl
 curlimages
 customdata
 Customisation
@@ -133,6 +134,7 @@ gavinbunney
 gcfg
 genai
 getconf
+getcwd
 getenv
 GGUF
 gitaly
@@ -277,6 +279,7 @@ nektos
 Nemotron
 netcat
 netem
+NEXTAUTH
 nikolaik
 nindent
 njpwerner
@@ -328,6 +331,7 @@ preseed
 Procfile
 projs
 promptui
+Promtail
 protobufjs
 psql
 psycopg
@@ -356,7 +360,10 @@ Qdrant
 qwen
 radialaxis
 RDNA
+readyz
+redoc
 referer
+regcred
 releaserc
 resolv
 respawn

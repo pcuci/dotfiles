@@ -71,30 +71,6 @@ if is_wsl; then
 fi
 # --- end WSL-only block ---
 
-# Initialize keychain for SSH keys: one-time keychain init with lock + notice
-if [[ -z "$SSH_AUTH_SOCK" ]]; then
-  lock="$HOME/.cache/keychain.lock"
-  mkdir -p "$(dirname "$lock")"
-  exec 9>"$lock"
-
-  if flock -n 9; then
-    # First shell: start agent and export vars
-    eval "$(keychain --quiet --eval --agents ssh --inherit any --quick id_ed25519)"
-  else
-    echo "[$$] Waiting for keychain lock: $lock"
-    for i in {1..20}; do
-      f="$HOME/.keychain/$(hostname -s)-sh"
-      if [[ -f "$f" ]]; then
-        # bring vars into *this* shell
-        # shellcheck disable=SC1090
-        . "$f"
-        break
-      fi
-      sleep 0.25
-    done
-    echo "[$$] Lock released, continuing…"
-  fi
-fi
 
 # Source FZF
 source ~/.fzf.bash
@@ -133,3 +109,4 @@ eval "$(starship init bash)"
 
 export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
