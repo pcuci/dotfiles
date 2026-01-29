@@ -51,6 +51,7 @@ checkpointer
 chglog
 chgrp
 choco
+chromedriver
 CLIENTID
 cloneable
 cloudinit
@@ -105,12 +106,14 @@ downstreams
 dpkg
 Drata
 drawables
+dupl
 dylib
 eclass
 elif
 enduser
 envrc
 envsubst
+errcheck
 esac
 esbuild
 eslintcache
@@ -127,6 +130,8 @@ fatih
 fdfind
 filechat
 forkable
+freefont
+freetype
 fusermount
 fuzztime
 gais
@@ -136,6 +141,7 @@ genai
 getconf
 getcwd
 getenv
+getsitepackages
 GGUF
 gitaly
 Gitea
@@ -148,12 +154,15 @@ gnueabihf
 GNUPGHOME
 goarch
 gobwas
+goconst
 gocovmerge
+gocyclo
 godoc
 godotenv
 gofmt
 gofrs
 gohtml
+goimports
 golangci
 googleapiclient
 googleclouddns
@@ -163,12 +172,16 @@ Gopkg
 GOPRIVATE
 goreleaser
 GOROOT
+gosec
+gosimple
 gotest
 gotestsum
+govet
 govulncheck
 gpgconf
 groupmember
 gruvbox
+harfbuzz
 hasattr
 headlessui
 healthcheck
@@ -197,6 +210,7 @@ imaginaryclient
 importdisk
 imshow
 indocker
+ineffassign
 initialised
 inmem
 Innersource
@@ -403,6 +417,7 @@ spyderproject
 spyproject
 srcset
 SSHURL
+staticcheck
 Storer
 stretchr
 stylelintcache
@@ -444,6 +459,7 @@ tseslint
 tvly
 tzdata
 unconfigured
+unconvert
 unfence
 unhead
 unimport

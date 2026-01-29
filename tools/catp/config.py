@@ -129,6 +129,7 @@ EXCLUDE_FILE_PATTERNS = {
     "project.assets.json",
     "go.mod",
     "go.sum",
+    "uv.lock",
 }
 
 # Default maximum file size in kilobytes.

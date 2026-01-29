@@ -16,3 +16,5 @@
 	insteadOf = https://gitlab-ncsa.ubisoft.org/
 [init]
 	defaultBranch = main
+[safe]
+	directory = ./
