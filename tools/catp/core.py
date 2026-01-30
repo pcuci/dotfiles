@@ -14,31 +14,112 @@ from .config import EXCLUDE_FILE_PATTERNS, GLOB_EXCLUDE_DIRS, GLOB_INCLUDE
 
 log = logging.getLogger(__name__)
 
-def find_git_repo_roots(start_path: Path, max_depth: float) -> list[Path]:
-    """Find Git repository roots up to max_depth."""
+
+def matches_path(path: Path, patterns: set[str]) -> bool:
+    """
+    Return True if path matches any glob pattern.
+    - Patterns with '/' or '**' are matched against the full path.
+    - Simple patterns are matched against any component of the path.
+    """
+    path_str = path.as_posix()
+    path_parts = path.parts
+    for p in patterns:
+        if "/" in p or "**" in p:
+            if path.match(p) or fnmatch.fnmatch(path_str, p):
+                return True
+        else:
+            if any(fnmatch.fnmatch(part, p) for part in path_parts):
+                return True
+    return False
+
+
+def should_exclude_subtree(rel_path: Path, exclude_patterns: set[str]) -> bool:
+    """
+    Check if a directory should be pruned from traversal.
+    Returns True if any exclude pattern denotes this as a subtree to skip.
+    """
+    path_str = rel_path.as_posix()
+    for p in exclude_patterns:
+        # Check if pattern matches this directory or any prefix
+        if p.endswith("/**"):
+            prefix = p[:-3]  # Remove /**
+            if path_str == prefix or path_str.startswith(prefix + "/"):
+                return True
+        if fnmatch.fnmatch(path_str, p) or fnmatch.fnmatch(path_str + "/", p):
+            return True
+    return False
+
+
+def find_git_repo_roots(
+    start_path: Path,
+    max_depth: float,
+    only_patterns: Optional[List[str]] = None,
+    exclude_patterns: Optional[List[str]] = None,
+) -> list[Path]:
+    """
+    Find Git repository roots up to max_depth.
+    
+    Applies unified filtering:
+    - If only_patterns provided, repo must match at least one
+    - If exclude_patterns provided, repo is dropped if any match
+    - Excluded subtrees are not descended into (performance optimization)
+    """
     repo_roots_found: set[Path] = set()
     queue: list[tuple[Path, int]] = [(start_path.resolve(), 0)]
     visited_dirs: set[Path] = {start_path.resolve()}
+
+    only_set = set(only_patterns) if only_patterns else None
+    exclude_set = set(exclude_patterns) if exclude_patterns else set()
 
     head = 0
     while head < len(queue):
         current_dir, depth = queue[head]
         head += 1
 
+        # Calculate relative path for filtering
+        try:
+            rel_path = current_dir.relative_to(start_path)
+        except ValueError:
+            rel_path = Path(".")
+
+        # Check if this is a repo
         if (current_dir / ".git").is_dir():
+            # Apply unified filters to repo path
+            if rel_path != Path("."):
+                # Check exclude first
+                if matches_path(rel_path, exclude_set):
+                    log.debug(f"[{rel_path}] REPO SKIP: Matches exclude pattern.")
+                    continue
+                # Check only (if provided)
+                if only_set and not matches_path(rel_path, only_set):
+                    log.debug(f"[{rel_path}] REPO SKIP: Does not match --only pattern.")
+                    continue
             repo_roots_found.add(current_dir)
 
         if depth < max_depth:
             try:
-                for child in current_dir.iterdir():
+                for child in sorted(current_dir.iterdir()):
                     if child.is_dir() and child.resolve() not in visited_dirs:
                         if child.name in GLOB_EXCLUDE_DIRS:
                             continue
+                        
+                        # Calculate child's relative path
+                        try:
+                            child_rel = child.relative_to(start_path)
+                        except ValueError:
+                            child_rel = Path(child.name)
+                        
+                        # Pruning: don't descend into excluded subtrees
+                        if should_exclude_subtree(child_rel, exclude_set):
+                            log.debug(f"[{child_rel}] PRUNE: Subtree excluded, not descending.")
+                            continue
+                        
                         visited_dirs.add(child.resolve())
                         queue.append((child.resolve(), depth + 1))
             except OSError as e:
                 log.warning(f"⚠️  Cannot scan directory {current_dir}: {e}")
 
+    # Handle case where start_path itself is a repo
     if not repo_roots_found and (start_path.resolve() / ".git").is_dir():
         repo_roots_found.add(start_path.resolve())
 
@@ -66,21 +147,8 @@ def git_files_in_repo(repo_root: Path) -> list[Path]:
         log.error(f"❌ Unexpected error listing files for {repo_root}: {e}")
         return []
 
-def matches_any(path: Path, patterns: set[str]) -> bool:
-    """
-    Return True if path matches any glob pattern.
-    - Patterns with '/' or '**' are matched against the full path.
-    - Simple patterns are matched against any component of the path.
-    """
-    path_parts = path.parts
-    for p in patterns:
-        if "/" in p or "**" in p:
-            if path.match(p):
-                return True
-        else:
-            if any(fnmatch.fnmatch(part, p) for part in path_parts):
-                return True
-    return False
+# Alias for backward compatibility in file filtering
+matches_any = matches_path
 
 def within_size(path: Path, kb: int) -> bool:
     """Return True if file size is within the limit."""
@@ -176,21 +244,165 @@ def collect(
     return sorted(kept_files.items()), sorted(skipped_large)
 
 
-def dump(
+def _write_preamble(dst, project_root: Path, echo: bool) -> None:
+    """Write the START preamble to output."""
+    project_name = project_root.name
+    project_path = project_root.as_posix()
+    preamble = f"START {project_name} ({project_path})\n{'=' * 80}\n\n"
+    dst.write(preamble)
+    if echo:
+        sys.stderr.write(f"\033[92m{preamble}\033[0m")
+
+
+def _write_end_marker(dst, project_root: Path, echo: bool) -> None:
+    """Write the END marker to output."""
+    end_marker = f"\n{'=' * 80}\nEND {project_root.as_posix()}\n"
+    dst.write(end_marker)
+    if echo:
+        sys.stderr.write(f"\033[92m{end_marker}\033[0m")
+
+
+def _build_repo_tree(
+    repo_roots: list[Path],
+    project_root: Path,
+) -> tuple[list[str], int]:
+    """
+    Build a tree representation of discovered repositories.
+    Returns (tree_lines, repo_count).
+    """
+    # Build directory structure
+    tree: dict = {}
+    for repo in repo_roots:
+        try:
+            rel = repo.relative_to(project_root)
+        except ValueError:
+            rel = repo
+        parts = rel.parts if rel != Path(".") else (".",)
+        current = tree
+        for part in parts:
+            if part not in current:
+                current[part] = {}
+            current = current[part]
+        current["__is_repo__"] = True
+
+    def render_tree(node: dict, prefix: str = "", is_last: bool = True) -> list[str]:
+        """Recursively render the tree structure."""
+        lines = []
+        items = [(k, v) for k, v in sorted(node.items()) if k != "__is_repo__"]
+        for i, (name, subtree) in enumerate(items):
+            is_last_item = (i == len(items) - 1)
+            connector = "└─ " if is_last_item else "├─ "
+            is_repo = subtree.get("__is_repo__", False)
+            marker = "✓ repo" if is_repo else ""
+            
+            # Check if this is a directory (has children other than __is_repo__)
+            has_children = any(k != "__is_repo__" for k in subtree.keys())
+            suffix = "/" if has_children or (not is_repo and not has_children) else ""
+            if is_repo and not has_children:
+                suffix = "/"
+            
+            line = f"{prefix}{connector}{name}{suffix}"
+            if marker:
+                line = f"{line.ljust(40)} {marker}"
+            lines.append(line)
+            
+            if has_children:
+                extension = "   " if is_last_item else "│  "
+                lines.extend(render_tree(subtree, prefix + extension, is_last_item))
+        return lines
+
+    # Special case: single repo at root
+    if len(repo_roots) == 1 and repo_roots[0] == project_root:
+        return [".                                        ✓ repo"], 1
+
+    tree_lines = ["."]
+    tree_lines.extend(render_tree(tree))
+    return tree_lines, len(repo_roots)
+
+
+def dump_repos(
+    repo_roots: list[Path],
+    out_file: Path,
+    echo: bool,
+    project_root: Path,
+    depth: int,
+) -> None:
+    """Write the repository tree manifest (--zoom=repos)."""
+    try:
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        with out_file.open("w", encoding="utf-8") as dst:
+            _write_preamble(dst, project_root, echo)
+
+            header = f"📦 REPOSITORIES (depth={depth})\n\n"
+            dst.write(header)
+            if echo:
+                sys.stderr.write(f"\033[93m{header}\033[0m")
+
+            tree_lines, count = _build_repo_tree(repo_roots, project_root)
+            tree_output = "\n".join(tree_lines) + "\n"
+            dst.write(tree_output)
+            if echo:
+                sys.stderr.write(tree_output)
+
+            summary = f"\nFound: {count} repositor{'y' if count == 1 else 'ies'}\n"
+            dst.write(summary)
+            if echo:
+                sys.stderr.write(f"\033[92m{summary}\033[0m")
+
+            _write_end_marker(dst, project_root, echo)
+
+    except OSError as e:
+        sys.exit(f"❌ Error writing to output file {out_file}: {e}")
+
+
+def dump_files(
+    files_to_dump: list[tuple[Path, Path]],
+    out_file: Path,
+    echo: bool,
+    project_root: Path,
+) -> None:
+    """Write the file list manifest (--zoom=files)."""
+    try:
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        with out_file.open("w", encoding="utf-8") as dst:
+            _write_preamble(dst, project_root, echo)
+
+            header = f"📄 FILES (count={len(files_to_dump)})\n"
+            dst.write(header)
+            if echo:
+                sys.stderr.write(f"\033[93m{header}\033[0m")
+
+            for display_p, _ in files_to_dump:
+                line = f"{display_p.as_posix()}\n"
+                dst.write(line)
+                if echo:
+                    sys.stderr.write(line)
+
+            _write_end_marker(dst, project_root, echo)
+
+    except OSError as e:
+        sys.exit(f"❌ Error writing to output file {out_file}: {e}")
+
+
+def dump_contents(
     files_to_dump: list[tuple[Path, Path]],
     skipped_large: list[tuple[Path, int]],
     out_file: Path,
     echo: bool,
     size_kb: int,
     truncate_ipynb: bool,
+    project_root: Path,
 ) -> None:
-    """Write the snapshot to the output file."""
+    """Write the full snapshot with file contents (--zoom=contents)."""
     try:
         out_file.parent.mkdir(parents=True, exist_ok=True)
         with out_file.open("w", encoding="utf-8") as dst:
+            _write_preamble(dst, project_root, echo)
+
             for i, (display_p, absolute_p) in enumerate(files_to_dump):
                 posix_path = display_p.as_posix()
-                banner = f"{'' if i == 0 else '\n'}📄 FILE {posix_path}:\n"
+                sep = "" if i == 0 else "\n"
+                banner = f"{sep}📄 FILE {posix_path}:\n"
                 if echo:
                     sys.stderr.write(f"\033[93m{banner.strip()}\033[0m\n")
 
@@ -210,6 +422,8 @@ def dump(
                     sys.stderr.write(content)
                 dst.write(content)
 
+            _write_end_marker(dst, project_root, echo)
+
         if skipped_large:
             footer_lines = [
                 "\n" + "=" * 80,
@@ -225,3 +439,7 @@ def dump(
 
     except OSError as e:
         sys.exit(f"❌ Error writing to output file {out_file}: {e}")
+
+
+# Backward compatibility alias
+dump = dump_contents

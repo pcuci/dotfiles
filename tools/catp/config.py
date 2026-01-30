@@ -1,3 +1,13 @@
+# --- Zoom Level Configuration ---
+from enum import Enum
+
+class ZoomLevel(Enum):
+    """Resolution selector for the snapshot pipeline."""
+    REPOS = "repos"       # Output: repo tree manifest
+    FILES = "files"       # Output: file list manifest  
+    CONTENTS = "contents" # Output: full snapshot (default)
+
+
 # --- File Inclusion/Exclusion Configuration ---
 
 # Files and patterns to include in the snapshot.
