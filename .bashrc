@@ -104,8 +104,10 @@ export GPG_TTY=$(tty)
 # Source user-defined aliases
 source ~/.bash_aliases
 
-# Initialize Starship prompt
-eval "$(starship init bash)"
+# Initialize Starship prompt (only in interactive, real terminals)
+if [[ $- == *i* ]] && [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
+  eval "$(starship init bash)"
+fi
 
 export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

@@ -99,6 +99,7 @@ dockerhub
 Dockerization
 Dockerized
 docmanager
+docpress
 docstrings
 DOTBOT
 Dotenv
