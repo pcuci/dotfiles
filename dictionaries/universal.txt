@@ -23,6 +23,7 @@ awsx
 bashdefault
 basicauth
 behaviour
+berriai
 bindfs
 binfmt
 binutils
@@ -101,6 +102,9 @@ Dockerized
 docmanager
 docpress
 docstrings
+domifaddr
+dominfo
+domstate
 DOTBOT
 Dotenv
 downstreams
@@ -123,6 +127,7 @@ evals
 EVENTBUS
 eventsource
 exoscale
+expandvars
 externalsecret
 façade
 fastapi
@@ -252,10 +257,12 @@ libgcc
 libguestfs
 libpam
 libstdc
+libvirtd
 linkwarden
 litellm
 llms
 localdev
+localds
 lockfiles
 loggroup
 loglevel
@@ -298,6 +305,7 @@ NEXTAUTH
 nikolaik
 nindent
 njpwerner
+noautoconsole
 nodeargs
 nodenext
 nologo
@@ -306,6 +314,7 @@ notty
 NPMJS
 NPROCESSORS
 nqry
+numfmt
 nuxi
 Nuxt
 nuxthub
@@ -317,11 +326,13 @@ Ollama
 Onboarder
 oneline
 ONLN
+openclaw
 opencommit
 opencontainers
 openhands
 openmost
 openpgp
+openrouter
 openvscode
 organisation
 ossdata
@@ -329,6 +340,7 @@ otlphttp
 packagemanager
 pandoc
 parsemrs
+pathlib
 pflag
 pgvector
 pids
@@ -371,6 +383,7 @@ PYTHONUNBUFFERED
 PYTHONUTF
 pytype
 pyyaml
+qcow
 Qdrant
 qwen
 radialaxis
@@ -457,6 +470,7 @@ toself
 Traefik
 Triaging
 tseslint
+tunables
 tvly
 tzdata
 unconfigured
@@ -474,12 +488,15 @@ USERPROFILE
 uvicorn
 vanta
 vantasdk
+VCPUS
 vektra
 venv
 venvs
 Vercel
 Viridis
+virsh
 virt
+virtinst
 virtio
 virtualenv
 VIRTUALENVS

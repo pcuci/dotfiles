@@ -30,6 +30,7 @@ paths_to_add=(
   "$HOME/.cargo/bin"
   "/snap/bin"
   "$HOME/.dotfiles/bin"
+  "/usr/local/bin/kind"
 )
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
@@ -103,6 +104,11 @@ export GPG_TTY=$(tty)
 
 # Source user-defined aliases
 source ~/.bash_aliases
+
+# Initialize direnv (auto-load .envrc on cd)
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook bash)"
+fi
 
 # Initialize Starship prompt (only in interactive, real terminals)
 if [[ $- == *i* ]] && [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
