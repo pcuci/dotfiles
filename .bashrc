@@ -30,8 +30,9 @@ paths_to_add=(
   "$HOME/.cargo/bin"
   "/snap/bin"
   "$HOME/.dotfiles/bin"
-  "$BUN_INSTALL/bin:$PATH"
- "/usr/local/bin/kind"
+  "$BUN_INSTALL/bin"
+  "/usr/local/bin/kind"
+  "/home/linuxbrew/.linuxbrew/bin/brew"
 )
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
@@ -81,22 +82,6 @@ source ~/.fzf.bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
-# Define proxy commands
-proxy_on() {
-    export HTTP_PROXY=http://proxy.ubisoft.org:3128
-    export HTTPS_PROXY=$HTTP_PROXY
-    export NO_PROXY=".ubisoft.com,.ubisoft.org,10.0.0.0/8,172.16.0.0/12,172.17.0.1,192.168.0.0/16,localhost,127.0.0.1,dev.hydra.local,*.hydra-dev"
-    export http_proxy=$HTTP_PROXY
-    export https_proxy=$HTTP_PROXY
-    export no_proxy=$NO_PROXY
-    echo "Proxy enabled."
-}
-
-proxy_off() {
-    unset HTTP_PROXY HTTPS_PROXY NO_PROXY http_proxy https_proxy no_proxy
-    echo "Proxy disabled."
-}
-
 # Export private GitLab settings
 export GOPRIVATE=gitlab-ncsa.ubisoft.org
 
@@ -118,6 +103,5 @@ fi
 
 export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export BUN_INSTALL="$HOME/.bun"
