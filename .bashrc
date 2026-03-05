@@ -32,13 +32,16 @@ paths_to_add=(
   "$HOME/.dotfiles/bin"
   "$BUN_INSTALL/bin"
   "/usr/local/bin/kind"
-  "/home/linuxbrew/.linuxbrew/bin/brew"
 )
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
     export PATH="$PATH:$path"
   fi
 done
+
+# Homebrew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+
 
 # Configure no_proxy for Kubernetes
 if [[ ":$no_proxy:" != *":kubernetes.docker.internal:"* ]]; then
