@@ -30,7 +30,8 @@ paths_to_add=(
   "$HOME/.cargo/bin"
   "/snap/bin"
   "$HOME/.dotfiles/bin"
-  "/usr/local/bin/kind"
+  "$BUN_INSTALL/bin:$PATH"
+ "/usr/local/bin/kind"
 )
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
@@ -118,3 +119,5 @@ fi
 export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+export BUN_INSTALL="$HOME/.bun"
