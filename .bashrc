@@ -20,6 +20,8 @@ export GOPATH=$HOME/go
 # Set WIN_IP from resolv.conf
 export WIN_IP=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf)
 
+export BUN_INSTALL="$HOME/.bun"
+
 # Add custom paths to PATH
 paths_to_add=(
   "$HOME/.local/bin"
@@ -107,4 +109,3 @@ fi
 export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-export BUN_INSTALL="$HOME/.bun"
