@@ -14,6 +14,9 @@ _gitlab-ci-local_yargs_completions() {
 complete -o bashdefault -o default -F _gitlab-ci-local_yargs_completions gitlab-ci-local
 ###-end-gitlab-ci-local-completions-###
 
+# Use 1Password SSH agent (if available)
+[[ -S ~/.1password/agent.sock ]] && export SSH_AUTH_SOCK=~/.1password/agent.sock
+
 # Set GOPATH
 export GOPATH=$HOME/go
 
