@@ -16,6 +16,7 @@ appsettings
 apputils
 archs
 argjson
+aspmx
 asyncio
 asyncpg
 autoplan
@@ -96,6 +97,7 @@ deconfliction
 deepseek
 degit
 depo
+devbox
 devstral
 DGGML
 DIFFLINES
@@ -241,6 +243,7 @@ initialised
 inmem
 Innersource
 instrumentator
+ionos
 ipykernel
 ipynb
 ipython
@@ -292,6 +295,7 @@ localds
 lockfiles
 loggroup
 loglevel
+Lookback
 luci
 lucide
 lumino
@@ -345,6 +349,7 @@ notty
 NPMJS
 NPROCESSORS
 nqry
+nslookup
 numfmt
 nuxi
 Nuxt
@@ -378,6 +383,7 @@ packagemanager
 pandoc
 parsemrs
 passlib
+passwordless
 pathlib
 PENDINGACTIVATION
 pflag
@@ -527,6 +533,7 @@ toon
 toplevel
 torrenting
 toself
+TOTP
 Traefik
 Triaging
 tseslint
@@ -577,6 +584,7 @@ wadey
 wcgw
 webassets
 webcomponents
+webflow
 westus
 winhost
 Wireframes

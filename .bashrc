@@ -36,7 +36,6 @@ paths_to_add=(
   "/snap/bin"
   "$HOME/.dotfiles/bin"
   "$BUN_INSTALL/bin"
-  "/usr/local/bin/kind"
 )
 for path in "${paths_to_add[@]}"; do
   if [[ ":$PATH:" != *":$path:"* ]]; then
@@ -46,6 +45,9 @@ done
 
 # Homebrew
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+
+# Ensure /usr/local/bin takes precedence over Homebrew
+export PATH="/usr/local/bin:$PATH"
 
 
 # Configure no_proxy for Kubernetes
@@ -112,3 +114,21 @@ fi
 export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+
+# pnpm
+export PNPM_HOME="/home/paul/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+# BEGIN ANSIBLE MANAGED BLOCK
+# Created by markosamuli.gcloud Ansible role
+if [ -d "$HOME/google-cloud-sdk" ]; then
+  export CLOUDSDK_ROOT_DIR="$HOME/google-cloud-sdk"
+  # Update PATH for the Google Cloud SDK.
+  source $CLOUDSDK_ROOT_DIR/path.bash.inc
+  # Enable bash completion for gcloud.
+  source $CLOUDSDK_ROOT_DIR/completion.bash.inc
+fi
+# END ANSIBLE MANAGED BLOCK
