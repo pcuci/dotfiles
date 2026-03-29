@@ -5,6 +5,7 @@ node_modules/
 genaiscript-samples/
 .env.genaiscript
 .env
+.gitconfig.local
 
 
 # Byte-compiled / optimized / DLL files
