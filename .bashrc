@@ -132,3 +132,5 @@ if [ -d "$HOME/google-cloud-sdk" ]; then
   source $CLOUDSDK_ROOT_DIR/completion.bash.inc
 fi
 # END ANSIBLE MANAGED BLOCK
+
+[[ -s "/home/paul/.gvm/scripts/gvm" ]] && source "/home/paul/.gvm/scripts/gvm"
