@@ -201,6 +201,7 @@ gotestsum
 govet
 govulncheck
 gpgconf
+gpgsign
 groupmember
 gruvbox
 gsub
@@ -261,6 +262,7 @@ jstemmer
 junitfile
 Karpenter
 keepalive
+keyid
 keyrings
 keyserver
 KHTML
@@ -280,6 +282,7 @@ langsmith
 ldflags
 letsencrypt
 levelname
+libatomic
 libc
 libgcc
 libguestfs
@@ -288,6 +291,7 @@ librechat
 libstdc
 libvirtd
 linkwarden
+linuxbrew
 litellm
 llms
 localdev
@@ -324,6 +328,7 @@ modelcontextprotocol
 moonshotai
 mountpoint
 msal
+mtail
 MTBF
 MTTR
 multiarch
@@ -442,6 +447,7 @@ redoc
 referer
 regcred
 releaserc
+reprovision
 RESETPASSWORD
 resolv
 resourcegraph
@@ -469,13 +475,16 @@ serviceaccount
 settingregistry
 setuptools
 SHASUMS
+shellenv
 shiki
 showlegend
 showupperhalf
+signingkey
 signup
 SIGNUPMEMBER
 SIGNUPOWNER
 SIGNUPSUPERUSER
+SIGTSTP
 silversearcher
 slowapi
 slugified
@@ -499,6 +508,7 @@ stretchr
 structlog
 stylelintcache
 subcharts
+subkey
 Subpages
 Sumfile
 Superrole
@@ -527,6 +537,7 @@ tlscert
 tlskey
 tlsverify
 tmpfs
+tmpkey
 toks
 tonistiigi
 toon

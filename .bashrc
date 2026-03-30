@@ -28,9 +28,11 @@ export BUN_INSTALL="$HOME/.bun"
 # Add custom paths to PATH
 paths_to_add=(
   "$HOME/.local/bin"
+  "$HOME/.local/share/pnpm"
   "$HOME/.pulumi/bin"
   "${KREW_ROOT:-$HOME/.krew}/bin"
   "$HOME/.linkerd2/bin"
+  "/usr/local/go/bin"
   "$GOPATH/bin"
   "$HOME/.cargo/bin"
   "/snap/bin"
@@ -133,4 +135,8 @@ if [ -d "$HOME/google-cloud-sdk" ]; then
 fi
 # END ANSIBLE MANAGED BLOCK
 
-[[ -s "/home/paul/.gvm/scripts/gvm" ]] && source "/home/paul/.gvm/scripts/gvm"
+# GVM — use $HOME so this works for any user (root, paul, etc.)
+# Guard GVM_DEBUG to avoid "unbound variable" errors under set -u;
+# GVM's cd hook references it without defaulting.
+export GVM_DEBUG="${GVM_DEBUG:-0}"
+[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
