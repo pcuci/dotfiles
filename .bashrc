@@ -136,7 +136,13 @@ fi
 # END ANSIBLE MANAGED BLOCK
 
 # GVM — use $HOME so this works for any user (root, paul, etc.)
-# Guard GVM_DEBUG to avoid "unbound variable" errors under set -u;
-# GVM's cd hook references it without defaulting.
-export GVM_DEBUG="${GVM_DEBUG:-0}"
-[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+# GVM scripts reference ZSH_VERSION, GVM_NO_GIT_BAK, gvm_go_name, and
+# GVM_DEBUG without defaults, so we must guard all of them and temporarily
+# disable nounset (-u) around the source since we can't patch every file.
+if [[ -s "$HOME/.gvm/scripts/gvm" ]]; then
+  export GVM_DEBUG="${GVM_DEBUG:-0}"
+  export GVM_NO_GIT_BAK="${GVM_NO_GIT_BAK:-}"
+  _gvm_prev_opts="$(set +o)"; set +u
+  source "$HOME/.gvm/scripts/gvm"
+  eval "$_gvm_prev_opts"; unset _gvm_prev_opts
+fi

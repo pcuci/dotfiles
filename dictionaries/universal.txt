@@ -62,6 +62,7 @@ clawpod
 CLIENTID
 cloneable
 cloudinit
+CLOUDSDK
 clusterissuers
 codegen
 CODEOWNERS
@@ -102,6 +103,7 @@ devstral
 DGGML
 DIFFLINES
 dind
+direnv
 Distro
 DLLAMA
 DMARC
@@ -285,6 +287,7 @@ levelname
 libatomic
 libc
 libgcc
+LIBGL
 libguestfs
 libpam
 librechat
@@ -308,6 +311,7 @@ magefile
 mailname
 mainfont
 manifoldco
+markosamuli
 matomo
 MECE
 mgmt
@@ -382,6 +386,7 @@ optimisation
 optscale
 orama
 organisation
+osrelease
 ossdata
 otlphttp
 packagemanager
@@ -603,10 +608,12 @@ workerd
 workstreams
 worktree
 wscript
+wslg
 xcaddy
 xclip
 xelatex
 xenova
+Xsrv
 yargs
 ydoc
 ymcki
