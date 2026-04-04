@@ -2,18 +2,33 @@
 # Launches a personal Cursor instance with settings merged from base + overrides.
 # Overrides (e.g. theme) live in ~/.dotfiles/cursor-personal-overrides.json.
 # Re-merges automatically whenever base settings.json changes while running.
+# Extension registry is symlinked from the default profile so installed
+# extensions stay in sync between cursor (work) and curser (personal).
 
 BASE="$HOME/.config/Cursor/User/settings.json"
 OVERRIDES="$HOME/.dotfiles/cursor-personal-overrides.json"
-PERSONAL="$HOME/.cursor-profile-personal/User/settings.json"
+PERSONAL_DIR="$HOME/.cursor-profile-personal"
+PERSONAL="$PERSONAL_DIR/User/settings.json"
+DEFAULT_PROFILE="$HOME/.config/Cursor/CachedProfilesData/__default__profile__"
+PERSONAL_PROFILE="$PERSONAL_DIR/CachedProfilesData/__default__profile__"
 
 merge() {
   jq -s '.[0] * .[1]' "$BASE" "$OVERRIDES" > "$PERSONAL"
 }
 
-# Remove symlink if present, replace with merged file
+# --- settings.json: merged file (not a symlink) ---
+mkdir -p "$PERSONAL_DIR/User"
 [ -L "$PERSONAL" ] && rm "$PERSONAL"
 merge
+
+# --- keybindings + snippets: symlinked ---
+ln -sf "$HOME/.config/Cursor/User/keybindings.json" "$PERSONAL_DIR/User/keybindings.json"
+ln -sf "$HOME/.config/Cursor/User/snippets"         "$PERSONAL_DIR/User/snippets"
+
+# --- extension registry: symlinked so installs are shared ---
+mkdir -p "$PERSONAL_PROFILE"
+ln -sf "$DEFAULT_PROFILE/extensions.user.cache"    "$PERSONAL_PROFILE/extensions.user.cache"
+ln -sf "$DEFAULT_PROFILE/extensions.builtin.cache" "$PERSONAL_PROFILE/extensions.builtin.cache"
 
 # Watch base settings for changes and re-merge in background
 if command -v inotifywait &>/dev/null; then
@@ -25,7 +40,7 @@ if command -v inotifywait &>/dev/null; then
   WATCHER_PID=$!
 fi
 
-cursor --user-data-dir="$HOME/.cursor-profile-personal" \
+cursor --user-data-dir="$PERSONAL_DIR" \
        --extensions-dir="$HOME/.cursor/extensions" \
        "$@"
 
