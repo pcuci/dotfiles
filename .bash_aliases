@@ -14,4 +14,5 @@ alias models="curl -s http://192.168.1.22:11434/api/tags | jq -r '.models[].name
 alias rs=repo-sync.py
 alias cb='xsel --clipboard --input'
 alias xf='xfwm4 --replace & xfce4-panel --restart &'
+alias curser='~/.local/bin/curser'
 

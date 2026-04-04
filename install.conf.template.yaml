@@ -22,6 +22,9 @@
     ~/.local/bin/winhost.sh:
       create: true
       path: bin/winhost.sh
+    ~/.local/bin/curser:
+      create: true
+      path: bin/curser
     ~/.ssh/config:
       path: ssh/config
       create: true
