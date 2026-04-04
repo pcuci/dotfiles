@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# cursor-uri-handler — XDG dispatcher for cursor:// URIs.
+#
+# Problem:  Linux can only register one handler per URI scheme. When both
+#           cursor (work) and curser (personal) are running, OAuth callbacks
+#           (cursor://anysphere.cursor-mcp/callback?...) need to reach the
+#           correct instance.
+#
+# How it works:
+#   1. Registered as the system handler for x-scheme-handler/cursor via
+#      cursor-uri-handler.desktop (replaces Cursor's default handler).
+#   2. Checks for a semaphore flag (~/.cursor-oauth-route-to-personal)
+#      created by `curser-oauth`.
+#   3. If the flag exists AND is <2 min old → routes to curser, consumes flag.
+#   4. Otherwise → routes to default cursor (work).
+#
+# The --open-url flag is required; without it Cursor treats the URI as a
+# file path instead of a protocol callback.
+#
+# See also: curser-oauth (creates the flag), curser (launcher)
+
+PERSONAL_DIR="$HOME/.cursor-profile-personal"
+OAUTH_FLAG="$HOME/.cursor-oauth-route-to-personal"
+FLAG_MAX_AGE=120  # seconds — auto-expire stale flags
+URI="$1"
+
+flag_is_valid() {
+    [ -f "$OAUTH_FLAG" ] || return 1
+    local age=$(( $(date +%s) - $(stat -c %Y "$OAUTH_FLAG") ))
+    [ "$age" -lt "$FLAG_MAX_AGE" ]
+}
+
+if flag_is_valid; then
+    rm -f "$OAUTH_FLAG"
+    cursor --user-data-dir="$PERSONAL_DIR" \
+           --extensions-dir="$HOME/.cursor/extensions" \
+           --open-url "$URI"
+else
+    rm -f "$OAUTH_FLAG"  # clean up stale flag if present
+    cursor --open-url "$URI"
+fi

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# curser-oauth — arm the OAuth routing flag for the personal Cursor instance.
+#
+# Problem:  Both cursor (work) and curser (personal) share the cursor:// URI
+#           scheme. When an OAuth callback redirects to cursor://, Linux calls
+#           one handler for all instances. Without intervention, the callback
+#           always lands in work cursor.
+#
+# Usage:
+#   1. Run `curser-oauth` in a terminal
+#   2. Trigger OAuth in curser (e.g. click "Add to Cursor" on an MCP)
+#   3. Browser opens → authenticate → callback routed to curser
+#
+# The flag auto-expires after 2 minutes (see cursor-uri-handler).
+#
+# See also: cursor-uri-handler (consumes the flag), curser (launcher)
+
+touch "$HOME/.cursor-oauth-route-to-personal"
+echo "Armed: next cursor:// callback within 2 min routes to curser (personal)."
+echo "Now trigger OAuth in curser — e.g. click 'Add to Cursor' or connect an MCP."

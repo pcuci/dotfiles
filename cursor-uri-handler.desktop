@@ -1,0 +1,11 @@
+# Registers cursor-uri-handler as the system handler for cursor:// URIs.
+# Replaces Cursor's built-in cursor-url-handler.desktop so OAuth callbacks
+# can be routed to the correct instance (work vs personal).
+# Installed to ~/.local/share/applications/ by dotbot.
+[Desktop Entry]
+Name=Cursor URI Handler
+Comment=Routes cursor:// URIs to the correct Cursor instance
+Exec=/home/paul/.local/bin/cursor-uri-handler %u
+Type=Application
+NoDisplay=true
+MimeType=x-scheme-handler/cursor;

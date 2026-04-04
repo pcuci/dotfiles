@@ -1,9 +1,26 @@
 #!/usr/bin/env bash
-# Launches a personal Cursor instance with settings merged from base + overrides.
-# Overrides (e.g. theme) live in ~/.dotfiles/cursor-personal-overrides.json.
-# Re-merges automatically whenever base settings.json changes while running.
-# Extension registry is symlinked from the default profile so installed
-# extensions stay in sync between cursor (work) and curser (personal).
+# curser — launch a personal Cursor instance alongside the default (work) one.
+#
+# Problem:  Cursor supports only one logged-in account at a time. This script
+#           runs a second instance under a separate --user-data-dir so you can
+#           log into a personal account while the default "cursor" stays on the
+#           work account.
+#
+# Strategy:
+#   - settings.json  → merged (base + overrides) so themes can differ
+#   - keybindings    → symlinked from default profile
+#   - snippets       → symlinked from default profile
+#   - extensions     → shared via --extensions-dir pointing at ~/.cursor/extensions
+#   - extension registry (CachedProfilesData) → symlinked so both instances
+#     see the same "installed" list without duplicating storage
+#
+# Dependencies: jq, inotifywait (optional, from inotify-tools)
+#
+# Files:
+#   ~/.dotfiles/cursor-personal-overrides.json  — JSON overrides (e.g. theme)
+#   ~/.cursor-profile-personal/                 — user-data-dir for this instance
+#
+# See also: curser-oauth, cursor-uri-handler (OAuth callback routing)
 
 BASE="$HOME/.config/Cursor/User/settings.json"
 OVERRIDES="$HOME/.dotfiles/cursor-personal-overrides.json"

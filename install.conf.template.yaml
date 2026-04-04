@@ -22,9 +22,23 @@
     ~/.local/bin/winhost.sh:
       create: true
       path: bin/winhost.sh
+    # --- curser: personal Cursor instance ---
+    # Runs a second Cursor with a separate login (--user-data-dir) while
+    # sharing extensions, keybindings, and snippets with the work instance.
+    # OAuth callbacks are routed via cursor-uri-handler (XDG scheme handler).
+    # See bin/curser, bin/curser-oauth, bin/cursor-uri-handler for details.
     ~/.local/bin/curser:
       create: true
       path: bin/curser
+    ~/.local/bin/curser-oauth:
+      create: true
+      path: bin/curser-oauth
+    ~/.local/bin/cursor-uri-handler:
+      create: true
+      path: bin/cursor-uri-handler
+    ~/.local/share/applications/cursor-uri-handler.desktop:
+      create: true
+      path: cursor-uri-handler.desktop
     ~/.ssh/config:
       path: ssh/config
       create: true
@@ -45,4 +59,13 @@
         if ! command -v starship &>/dev/null; then
         curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y; fi,
         Installing Starship locally if not already installed,
+      ]
+    # Register curser's URI handler as the system default for cursor:// links.
+    # This overrides Cursor's built-in handler so OAuth callbacks can be
+    # routed to the correct instance (work vs personal) at runtime.
+    - [
+        "chmod +x ~/.local/bin/curser ~/.local/bin/curser-oauth ~/.local/bin/cursor-uri-handler &&
+        xdg-mime default cursor-uri-handler.desktop x-scheme-handler/cursor &&
+        update-desktop-database ~/.local/share/applications/ 2>/dev/null || true",
+        Registering cursor:// URI handler dispatcher,
       ]
