@@ -42,6 +42,7 @@ BUILDKIT
 buildx
 byobu
 BYOC
+capitalisation
 catthehacker
 ccxl
 cdrom
@@ -99,6 +100,7 @@ deepseek
 degit
 depo
 devbox
+devboxes
 devstral
 DGGML
 DIFFLINES
@@ -170,6 +172,7 @@ GGUF
 gitaly
 Gitea
 githubcli
+Gitpods
 gitutil
 glab
 globalconfig
@@ -341,6 +344,7 @@ mydict
 mypy
 nameserver
 nbformat
+Negotiables
 nektos
 Nemotron
 netcat
@@ -562,6 +566,7 @@ unfence
 unhead
 unimport
 unpushed
+unredacted
 unrs
 unsecret
 UPID
