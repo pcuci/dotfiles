@@ -142,6 +142,18 @@ fi
 if [[ -s "$HOME/.gvm/scripts/gvm" ]]; then
   export GVM_DEBUG="${GVM_DEBUG:-0}"
   export GVM_NO_GIT_BAK="${GVM_NO_GIT_BAK:-}"
+  # gvm's scripts/function/_bash_pseudo_hash uses $HEXDUMP_PATH (and friends)
+  # without sourcing scripts/function/tools, so on every cd it tries to run
+  # the literal `-e` as a command and floods stderr with
+  # `-e: command not found`. Pre-export the paths to silence it.
+  export LS_PATH="${LS_PATH:-$(command -v ls)}"
+  export TR_PATH="${TR_PATH:-$(command -v tr)}"
+  export SED_PATH="${SED_PATH:-$(command -v sed)}"
+  export GREP_PATH="${GREP_PATH:-$(command -v grep)}"
+  export EGREP_PATH="${EGREP_PATH:-$(command -v egrep)}"
+  export SORT_PATH="${SORT_PATH:-$(command -v sort)}"
+  export HEAD_PATH="${HEAD_PATH:-$(command -v head)}"
+  export HEXDUMP_PATH="${HEXDUMP_PATH:-$(command -v hexdump)}"
   _gvm_prev_opts="$(set +o)"; set +u
   source "$HOME/.gvm/scripts/gvm"
   eval "$_gvm_prev_opts"; unset _gvm_prev_opts
