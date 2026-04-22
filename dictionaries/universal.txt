@@ -13,6 +13,7 @@ analyse
 anaylsis
 anyio
 apollographql
+appprojects
 appsettings
 apputils
 archs
@@ -91,6 +92,7 @@ curlimages
 customdata
 Customisation
 customise
+cutover
 CWORD
 cython
 dagshub
@@ -446,6 +448,7 @@ psql
 psycopg
 pterm
 Pullrequests
+pulumiservice
 pulumiverse
 pvesh
 pybuilder
@@ -488,6 +491,7 @@ rocm
 rootfs
 ropeproject
 RSSM
+runatlantis
 runbook
 runcmd
 sandboxed

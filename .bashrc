@@ -46,7 +46,9 @@ for path in "${paths_to_add[@]}"; do
 done
 
 # Homebrew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+fi
 
 # Ensure /usr/local/bin takes precedence over Homebrew
 export PATH="/usr/local/bin:$PATH"
@@ -140,7 +142,7 @@ fi
 # GVM_DEBUG without defaults, so we must guard all of them and temporarily
 # disable nounset (-u) around the source since we can't patch every file.
 if [[ -s "$HOME/.gvm/scripts/gvm" ]]; then
-  export GVM_DEBUG="${GVM_DEBUG:-0}"
+  export GVM_DEBUG="${GVM_DEBUG:-}"
   export GVM_NO_GIT_BAK="${GVM_NO_GIT_BAK:-}"
   # gvm's scripts/function/_bash_pseudo_hash uses $HEXDUMP_PATH (and friends)
   # without sourcing scripts/function/tools, so on every cd it tries to run
