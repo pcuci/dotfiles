@@ -168,6 +168,7 @@ fastapi
 FASTMCP
 fatih
 fdfind
+Federalizer
 filechat
 finops
 forkable
@@ -188,6 +189,7 @@ GGUF
 gitaly
 Gitea
 githubcli
+gitops
 Gitpods
 gitutil
 glab
@@ -378,6 +380,7 @@ noautoconsole
 nodeargs
 nodenext
 nologo
+NOPS
 nosetests
 notty
 NPMJS
@@ -406,7 +409,10 @@ openhands
 openmost
 openpgp
 openrouter
+openui
+openuidev
 openvscode
+Operationalises
 optimisation
 optscale
 orama
@@ -440,6 +446,7 @@ poststart
 preclone
 Precreate
 preseed
+Priya
 Procfile
 projs
 promptui
@@ -482,6 +489,8 @@ redoc
 referer
 regcred
 releaserc
+replatforming
+replayable
 reprovision
 RESETPASSWORD
 resolv
@@ -538,6 +547,7 @@ spyproject
 sqlalchemy
 srcset
 SSHURL
+Standardisation
 starlette
 statefulness
 staticcheck

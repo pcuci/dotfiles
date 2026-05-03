@@ -48,6 +48,9 @@
     ~/.byobu/.tmux.conf:
       path: .tmux.conf
       create: true
+    ~/.gnupg/gpg-agent.conf:
+      path: gnupg/gpg-agent.conf
+      create: true
 
 - shell:
     - [
@@ -68,4 +71,8 @@
         xdg-mime default cursor-uri-handler.desktop x-scheme-handler/cursor &&
         update-desktop-database ~/.local/share/applications/ 2>/dev/null || true",
         Registering cursor:// URI handler dispatcher,
+      ]
+    - [
+        "gpgconf --reload gpg-agent 2>/dev/null || true",
+        Reloading GPG agent with updated config,
       ]
