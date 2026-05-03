@@ -26,6 +26,11 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Cargo/Rust (needed for git hooks and non-interactive shells)
+if [ -d "$HOME/.cargo/bin" ] ; then
+    PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 # Only auto-launch Byobu on SSH logins, and not if we're already inside tmux
 if [[ -n "$SSH_CONNECTION" && -z "$TMUX" ]]; then
   byobu_sourced=1 . /usr/bin/byobu-launch 2>/dev/null || true
