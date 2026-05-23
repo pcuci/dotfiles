@@ -15,4 +15,5 @@ alias rs=repo-sync.py
 alias cb='xsel --clipboard --input'
 alias xf='xfwm4 --replace & xfce4-panel --restart &'
 alias curser='~/.local/bin/curser'
-
+alias lsh="llm -t sh"
+alias lgc="git diff --cached | llm -t gc"
