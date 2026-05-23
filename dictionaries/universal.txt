@@ -42,6 +42,7 @@ Breakglass
 buildcache
 BUILDKIT
 buildx
+bwlimit
 byobu
 BYOC
 capitalisation
@@ -483,6 +484,7 @@ qcow
 Qdrant
 qwen
 radialaxis
+rclone
 RDNA
 readyz
 redoc
@@ -647,6 +649,7 @@ vuetify
 vueuse
 vztmpl
 wadey
+watchlist
 wcgw
 webassets
 webcomponents

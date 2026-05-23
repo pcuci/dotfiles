@@ -95,6 +95,7 @@ source ~/.fzf.bash
 # Initialize NVM (Node Version Manager)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/nvm.sh" ] && nvm use default --silent 2>/dev/null # Use default version
 
 # Export private GitLab settings
 export GOPRIVATE=gitlab-ncsa.ubisoft.org
@@ -160,3 +161,10 @@ if [[ -s "$HOME/.gvm/scripts/gvm" ]]; then
   source "$HOME/.gvm/scripts/gvm"
   eval "$_gvm_prev_opts"; unset _gvm_prev_opts
 fi
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/paul/.local/bin:$PATH"
+
+# opencode
+export PATH=/home/paul/.opencode/bin:$PATH

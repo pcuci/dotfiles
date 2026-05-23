@@ -38,3 +38,7 @@ fi
 
 if [ -n "$DISPLAY" ] && printf %s "$DISPLAY" | grep -qE '^127\.'; then export DISPLAY=:0; fi
 [ -z "$XAUTHORITY" ] && export XAUTHORITY="$HOME/.Xauthority"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/paul/.local/bin:$PATH"
