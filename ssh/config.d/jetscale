@@ -1,0 +1,22 @@
+Host agent-vm-cursor
+  HostName i-0d3b9d0d4bb26d782
+  User cursor
+  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_ed25519_passphraseless
+  IdentitiesOnly yes
+  ProxyCommand bash -lc 'source /home/paul/code/jetscale/agents-vm/scripts/preflight.sh >/dev/null && aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'
+
+Host agent-vm-cursor-tunnels
+  HostName i-0d3b9d0d4bb26d782
+  User cursor
+  IdentityFile ~/.ssh/id_ed25519_passphraseless
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  LocalForward 10350 127.0.0.1:10350
+  LocalForward 3000 127.0.0.1:3000
+  LocalForward 8000 127.0.0.1:8000
+  LocalForward 5432 127.0.0.1:5432
+  ExitOnForwardFailure yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  ProxyCommand bash -lc 'source /home/paul/code/jetscale/agents-vm/scripts/preflight.sh >/dev/null && aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'

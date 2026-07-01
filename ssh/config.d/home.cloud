@@ -35,3 +35,9 @@ Host mk8s
   IdentityFile ~/.ssh/id_rsa
   IdentityFile ~/.ssh/id_ed25519
 
+Host ubuntu-gpu
+  HostName ubuntu-gpu.lan
+  User paul
+  IdentityFile ~/.ssh/id_ed25519_passphraseless
+  IdentitiesOnly yes
+

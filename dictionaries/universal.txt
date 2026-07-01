@@ -21,6 +21,7 @@ argjson
 aspmx
 asyncio
 asyncpg
+automatable
 autoplan
 autoremove
 autoresize
@@ -300,6 +301,7 @@ kubeconfig
 kubecontext
 kwargs
 labextension
+lakehouse
 LANGCHAIN
 Langfuse
 langgraph
@@ -338,6 +340,7 @@ mainfont
 Mancuso
 manifoldco
 markosamuli
+Massdriver
 matomo
 MECE
 mgmt
@@ -422,6 +425,7 @@ organisational
 osrelease
 ossdata
 otlphttp
+overfit
 overprovisioning
 packagemanager
 pandoc
@@ -492,6 +496,7 @@ referer
 regcred
 releaserc
 replatforming
+replayability
 replayable
 reprovision
 RESETPASSWORD
@@ -590,6 +595,7 @@ tlskey
 tlsverify
 tmpfs
 tmpkey
+tokenomics
 toks
 tonistiigi
 toon

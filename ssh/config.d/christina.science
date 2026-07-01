@@ -99,3 +99,8 @@ Host stable-aphid top-earwig witty-eagle
   PermitLocalCommand yes
   IdentityFile ~/.ssh/id_ed25519
 
+Host gitlab-3mblay
+  HostName gitlab.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_3mblay
+  IdentitiesOnly yes
