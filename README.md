@@ -88,10 +88,17 @@ The flag auto-expires after 2 minutes to prevent stale misrouting.
 - `pipx` (recommended) or `uv`
 
 ```bash
-git clone https://github.com/pcuci/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+mkdir -p ~/code
+git clone https://github.com/pcuci/dotfiles.git ~/code/dotfiles
+ln -s ~/code/dotfiles ~/.dotfiles
+cd ~/code/dotfiles
 ./install
 ```
+
+`~/code/dotfiles` is the canonical checkout. The `~/.dotfiles` compatibility
+symlink preserves existing paths used by Dotbot and shell configuration.
+Governance capabilities are declared in `.agents/imports.json` and regenerated
+with `~/code/governance/scripts/onboard-governed-project.mjs`.
 
 ## 🛠️ Tooling Usage (`catp`)
 

@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "sourcePackage": "./codex",
+  "imports": [
+    {
+      "bundle": "baseline"
+    }
+  ],
+  "localOverrides": {},
+  "components": [
+    "skills",
+    "agents",
+    "commands",
+    "context",
+    "statuslines",
+    "settings",
+    "templates"
+  ],
+  "include": [],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/vendor/**"
+  ]
+}
