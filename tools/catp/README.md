@@ -1,177 +1,176 @@
-# catp - Context-Aware Snapshot Tool
+# `catp` — context-aware repository snapshots
 
-**A CLI tool for creating LLM-ready code snapshots with intelligent file filtering and Git-aware collection.**
+`catp` creates Git-aware repository manifests, file manifests, and full source snapshots for LLM workflows.
 
-[![PyPI version](https://badge.fury.io/py/catp.svg)](https://pypi.org/project/catp/)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**Status:** repository-local beta
 
-## 🚀 Installation
+**Runtime:** Python 3.10+ as currently implemented
 
-### Via pipx (Recommended)
+**Distribution:** not currently published or independently installable
+
+## Current execution model
+
+Run the repository launcher from a dotfiles checkout:
 
 ```bash
-pipx install catp
+./bin/catp --help
+./bin/catp --zoom contents
 ```
 
-### Via pip
+The launcher adds the repository's `tools/` directory to `sys.path` and imports `catp.cli`. Although `pyproject.toml` exists, its current setuptools package discovery finds no package because the Python modules sit directly beside the project file. Therefore these are **not yet supported**:
 
-```bash
+```text
 pip install catp
-```
-
-### Via uv
-
-```bash
+pipx install catp
 uv tool install catp
+pip install -e tools/catp
 ```
 
-### From Source
+Detailed packaging and product work is tracked in the [`catp` roadmap](ROADMAP.md), under portfolio epic **E5: Independent `catp` product** in the root [`ROADMAP.md`](../../ROADMAP.md). Publication should wait until isolated wheel installation and both public entry points are tested.
+
+## Usage
 
 ```bash
-git clone https://github.com/pcuci/dotfiles.git
-cd dotfiles/tools/catp
-pip install -e .
+# Full snapshot of the current repository
+./bin/catp
+
+# Snapshot selected paths
+./bin/catp src/ tests/
+
+# Repository tree only
+./bin/catp --zoom repos --depth 2
+
+# Matching file list without contents
+./bin/catp --zoom files --only "*.py"
+
+# Full contents at unlimited repository-discovery depth
+./bin/catp --zoom contents --depth -1
+
+# Write to a selected output file
+./bin/catp --out context.txt
+
+# Copy the generated output to the clipboard
+./bin/catp --clipboard
 ```
 
-## 📖 Usage
+### Zoom levels
 
-### Basic Usage
+| Value | Output | Default suffix |
+| --- | --- | --- |
+| `repos` | Discovered repository tree | `-repos.txt` |
+| `files` | Matching file manifest | `-files.txt` |
+| `contents` | Full matching file contents (default) | `-llm.txt` |
+
+When `--out` is omitted, output is written beneath the platform temporary directory using the current directory name and the suffix above.
+
+## CLI reference
+
+The authoritative option definitions are in `cli.py`. Run `./bin/catp --help` for generated help.
+
+| Option | Meaning |
+| --- | --- |
+| `paths...` | Restrict collection to selected paths; defaults to the current repository |
+| `-z, --zoom {repos,files,contents}` | Select output resolution |
+| `-o, --out PATH` | Select output path |
+| `-k, --max-kb KB` | Maximum included file size; default `400` KB |
+| `--only PATTERN...` | Add inclusion patterns using OR semantics; repeatable |
+| `-e, --exclude PATTERN...` | Add exclusion patterns using OR semantics; repeatable |
+| `-a, --allow PATTERN...` | Remove exact patterns from the default exclusion set |
+| `--no-ipynb-truncate` | Preserve notebook outputs instead of stripping them |
+| `-q, --quiet` | Suppress informational output |
+| `-v, --verbose` | Log filtering decisions |
+| `-c, --clipboard` | Copy the generated output to the system clipboard |
+| `--clipboard-timeout SECONDS` | Clipboard operation timeout; default `10.0` seconds |
+| `-d, --depth N` | Discover nested Git repositories to depth `N`; `-1` means unlimited |
+
+`--allow` is described by the parser as requiring an inclusion flag, but that relationship is not yet enforced. Its current implementation removes exact default exclusion patterns rather than acting as a general override glob.
+
+## Collection behavior
+
+### Git integration
+
+For each discovered repository, `catp` uses:
+
+```text
+git ls-files --cached --others --exclude-standard
+```
+
+This includes tracked files and untracked, non-ignored files. It respects standard Git ignore rules, but it is not a tracked-files-only snapshot. Review untracked material before sharing generated output.
+
+### Filtering
+
+Default inclusion and exclusion policy currently lives in `config.py`. The lists are implementation details and are not duplicated here because they have previously drifted from documentation.
+
+Notable current behavior:
+
+- common source, infrastructure, configuration, documentation, and notebook patterns are included;
+- dependency, build, VCS, IDE, binary, archive, and large-file patterns are excluded;
+- exclusions are applied before inclusion;
+- `pnpm-lock.yaml` appears in both the include and exclude configuration and is therefore effectively excluded;
+- `poetry.lock` and `yarn.lock` are currently included.
+
+Milestone C4 in the [`catp` roadmap](ROADMAP.md) will introduce a `.catp.toml` contract after the contradictory built-in policies are resolved.
+
+### Clipboard support
+
+Clipboard mode selects platform-specific tools:
+
+- Wayland: `wl-copy`
+- X11: `xsel` or `xclip`
+- macOS: `pbcopy`
+- Windows/WSL: `clip.exe` or PowerShell
+- fallback: OSC52 through a writable `/dev/tty`
+
+If clipboard copying fails, the output file remains written but the command returns failure.
+
+## Development and validation
+
+The existing repository test suite focuses on zoom behavior:
 
 ```bash
-# Snapshot current directory
-catp
-
-# Snapshot specific paths
-catp src/ tests/
-
-# Save to custom location
-catp --out my-snapshot.txt
-
-# Copy to clipboard
-catp --clipboard
+PYTHONDONTWRITEBYTECODE=1 pytest -p no:cacheprovider tools/catp/test_zoom.py -q
 ```
 
-### Advanced Filtering
+At the 2026-08-04 audit, this passed with 30 tests. This does **not** validate package building or installation.
 
-```bash
-# Include only Python files
-catp --only "*.py"
+Priority test gaps include:
 
-# Exclude test files and node_modules
-catp --exclude "**/test*" --exclude "**/node_modules/**"
+- wheel and sdist builds;
+- isolated installation and public entry points;
+- supported Python-version matrix;
+- real Git repository integration;
+- filtering and `--allow` semantics;
+- notebook error handling;
+- clipboard strategy selection and failures;
+- numeric argument validation and output errors.
 
-# Allow specific exclusions (combine with --only)
-catp --only "*.js" --allow "**/node_modules/**"
+## Modernization milestones
 
-# Limit file size
-catp --max-kb 200
+The component [`ROADMAP.md`](ROADMAP.md) is the source of truth for execution detail:
 
-# Disable Jupyter notebook output truncation
-catp --no-ipynb-truncate
-```
+| Milestone | Purpose | Status |
+| --- | --- | --- |
+| C1 Package foundation | Conventional layout, truthful metadata, build/install smoke tests | In progress |
+| C2 Behavioral contract | Validate CLI behavior and expand integration/error-path coverage | Planned |
+| C3 Distribution and migration | Choose a channel, retire legacy code and the import shim | Planned |
+| C4 Project configuration | Add typed `.catp.toml`, precedence, and `--init` | Planned |
+| C5 Product assurance | Add compatibility, artifact, and documentation checks | Incremental |
 
-### Git Repository Scanning
+Root E1.5 owns the prerequisite license decision, while root E6 coordinates repository-wide assurance.
 
-```bash
-# Scan multiple levels deep for Git repos
-catp --depth 2
+## Known packaging and metadata blockers
 
-# Include all files in Git repos regardless of ignore rules
-catp --depth 1  # Infinite depth
-```
+- Setuptools package discovery currently returns no package.
+- Source uses Python 3.10 syntax while metadata declares Python 3.8.
+- `pyproject.toml` references a missing `CHANGELOG.md` and `py.typed` marker.
+- No verified `catp` project is published at the documented PyPI name.
+- Package metadata declares MIT while the root repository uses the Cosmic Coexistence License.
+- `projects/cat_project/cli.py` remains as a divergent legacy implementation.
 
-## 🎯 Command Line Options
+## Contributing
 
-```
-Usage: catp [OPTIONS] [PATHS...]
+Open issues in the [main repository](https://github.com/pcuci/dotfiles/issues). Packaging, safety, and contract alignment take priority over feature expansion.
 
-Context-aware snapshot tool for LLM workflows.
+## License
 
-Positional Arguments:
-  paths                 Paths to include (e.g., src/ tests/). If empty, scans current directory.
-
-Options:
-  -o, --out PATH        Output file path (default: /tmp/{repo-name}-llm.txt)
-  -k, --max-kb KB       Maximum file size in kilobytes (default: 400)
-  --only PATTERN+       Glob patterns to select files (overrides defaults)
-  -e, --exclude PATTERN+ Glob patterns to exclude files (adds to blocklist)
-  -a, --allow PATTERN+  Disable default exclusions (requires --only)
-  --no-ipynb-truncate   Include Jupyter notebook outputs
-  -q, --quiet           Suppress informational output
-  -v, --verbose         Enable detailed filtering logs
-  -c, --clipboard       Copy final snapshot to system clipboard
-  --clipboard-timeout S Timeout for clipboard operations (default: 10.0s)
-  -d, --depth N         Scan for Git repos up to N levels deep (-1 for infinite)
-  -h, --help            Show this help message
-```
-
-## 🔍 File Inclusion Logic
-
-### Default Included Extensions
-
-catp includes files with these extensions by default:
-
-- **Web**: `.js`, `.jsx`, `.ts`, `.tsx`, `.vue`, `.css`, `.scss`, `.sass`, `.html`, `.tmpl`
-- **Backend**: `.py`, `.go`, `.java`, `.cs`, `.php`, `.rb`, `.rs`
-- **Config**: `.json`, `.yaml`, `.yml`, `.toml`, `.xml`, `.config`, `.ini`, `.cfg`
-- **DevOps**: `.tf`, `.hcl`, `.dockerfile`, `.sh`, `.bash`, `.ps1`
-- **Docs**: `.md`, `.mdx`, `.txt`
-- **Data**: `.ipynb`, `.sql`
-
-### Default Exclusions
-
-These directories and patterns are excluded by default:
-
-- **Version Control**: `.git/`
-- **Dependencies**: `node_modules/`, `vendor/`, `__pycache__/`, `.venv/`
-- **Build Artifacts**: `dist/`, `build/`, `.terraform/`
-- **Binaries**: Files ending in `.min.*`, `.png`, `.jpg`, `.exe`, etc.
-- **Lock Files**: `package-lock.json`, `yarn.lock`, `poetry.lock`, etc.
-
-### Git Integration
-
-catp automatically discovers Git repositories and collects files tracked by Git. This ensures only relevant project files are included, respecting `.gitignore` rules.
-
-## 🌟 Key Features
-
-- **Git-Aware**: Automatically finds and respects Git repository boundaries
-- **Smart Filtering**: Intelligent inclusion/exclusion with glob patterns
-- **Cross-Platform Clipboard**: Supports Windows, macOS, Linux (X11/Wayland)
-- **Size Limits**: Prevents accidentally including large binary files
-- **Jupyter Support**: Intelligently truncates notebook outputs for LLM consumption
-- **Configurable**: Extensive options for customizing file selection
-
-## 📋 Examples
-
-### Frontend Project
-```bash
-catp --only "*.{js,jsx,ts,tsx,css,html}" --exclude "**/node_modules/**"
-```
-
-### Python Backend
-```bash
-catp --only "*.py" --exclude "**/test*" --exclude "**/__pycache__/**"
-```
-
-### Multi-Service Repository
-```bash
-catp --depth 2 --max-kb 300
-```
-
-### Quick Clipboard Copy
-```bash
-catp -c -q --only "*.py" src/
-```
-
-## 🤝 Contributing
-
-Found a bug or want to suggest a feature? Open an issue on the [main repository](https://github.com/pcuci/dotfiles/issues).
-
-## 📄 License
-
-MIT License - see the [main LICENSE](../LICENSE) file for details.
-
----
-
-**Part of the [Sovereign Dotfiles](https://github.com/pcuci/dotfiles) project.**
+The intended package license is unresolved. The root [`LICENSE`](../../LICENSE) is the Cosmic Coexistence License, while `pyproject.toml` currently declares MIT. Do not publish package artifacts until this conflict is explicitly resolved.

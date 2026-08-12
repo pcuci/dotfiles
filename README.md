@@ -1,118 +1,177 @@
 # .dotfiles (Sovereign Edition)
 
-**Status:** Modernization in Progress (See `ROADMAP.md`)
+**Status:** Modernization in progress
+
 **Governing Invariant:** `Ethos/Identity`
 
-A portable, sovereign configuration environment and tooling suite.
+**Verified snapshot:** 2026-08-04
 
-## 🗺️ Architecture
+A personal Linux/WSL configuration repository, bootstrap system, and tooling workspace. It is optimized for the owner's environment; it is not yet a portable, reproducible distribution for arbitrary hosts.
 
-This repository is organized into three distinct domains, ensuring **Separation of Concerns** (`Ethos/Identity`):
+See [`ROADMAP.md`](ROADMAP.md) for the epic-based modernization plan.
 
-1.  **Configuration State (The "Dotfiles")**
-    - Managed via `Dotbot`.
-    - Defined in `install.conf.template.yaml`.
-    - Targets: `~/.bashrc`, `~/.gitconfig`, `~/.ssh/config`.
+## Modernization map
 
-2.  **Sovereign Tooling (The "Tools")**
-    - **`catp`**: A context-aware snapshot tool for LLM workflows.
-    - Located in `tools/catp/`.
-    - *See Phase 1 of Roadmap for decoupling plans.*
+| Epic | Scope | Current priority |
+| --- | --- | --- |
+| E1 | Operational safety | Remove hidden SSH execution, unsafe repository planning, credential mirroring, and privileged Docker exposure |
+| E2 | Reproducible bootstrap | Add preview/recovery and install committed dependency revisions |
+| E3 | Declarative toolchain | Establish one owner for runtime and CLI versions |
+| E4 | Configuration architecture | Separate portable, personal, work, WSL, editor, and generated state |
+| E5 | Independent `catp` product | Fix packaging, distribution, testing, and project-local policy |
+| E6 | Continuous assurance | Add CI for shell, packaging, bootstrap, secrets, and documentation drift |
 
-3.  **Bootstrapping (The "Lift")**
-    - Scripts to elevate a fresh machine to a configured state.
+The immediate implementation tranche is E1-led. Feature expansion should not outrun the safety and reproducibility foundations.
 
-4.  **Cursor Multi-Profile (The "Curser")**
-    - Runs two Cursor instances with separate logins (work + personal).
-    - Shares extensions, keybindings, snippets; isolates accounts and theme.
-    - See `bin/curser`, `bin/curser-oauth`, `bin/cursor-uri-handler`.
+## Architecture
 
-## Cursor Multi-Profile Setup
+The repository currently contains five domains:
 
-Run two Cursor instances side-by-side with different accounts:
+1. **Configuration state**
+   - Shell, Git, SSH, GPG, Byobu, Starship, Cursor, and helper configuration.
+   - Installed primarily through Dotbot.
+   - `install.conf.template.yaml` is the source of truth; `install.conf.yaml` is generated and must not be edited.
 
-| Instance | Login | Theme | Launched via |
-| -------- | ----- | ----- | ------------ |
-| `cursor` | work (default) | default | system launcher |
-| `curser` | personal | Solarized Dark | `curser` command |
+2. **Bootstrap**
+   - `install` loads an optional profile, generates Dotbot configuration, initializes dependencies, replaces selected home-directory files, and runs Dotbot.
+   - `win-install` is a legacy WSL-oriented helper and is not currently a supported bootstrap path.
 
-### Files
+3. **Repository-local tooling**
+   - `tools/catp/` contains the current context snapshot implementation.
+   - `bin/` contains personal operational helpers with varying portability and safety characteristics.
 
-| File | Purpose |
-| ---- | ------- |
-| `bin/curser` | Launcher: merges settings, symlinks config, starts Cursor with `--user-data-dir` |
-| `bin/curser-oauth` | Arms a semaphore so the next OAuth callback routes to curser |
-| `bin/cursor-uri-handler` | XDG dispatcher for `cursor://` URIs (replaces Cursor's default) |
-| `cursor-uri-handler.desktop` | Registers the dispatcher as the system URI handler |
-| `cursor-personal-overrides.json` | JSON overrides merged on top of base settings (e.g. theme) |
+4. **Editor profiles**
+   - `bin/curser`, `bin/curser-oauth`, and `bin/cursor-uri-handler` support a separate personal Cursor login.
+   - VS Code recommendations are tracked under `.vscode/`.
 
-### How it works
+5. **Governance projections**
+   - `.agents/imports.json` is tracked.
+   - Most `.agents/`, `.cursor/agents/`, `.cursor/skills/`, and `.claude/` content is generated or ignored and depends on an external governance checkout.
 
-```text
-~/.config/Cursor/          ← default user-data-dir (work account)
-~/.cursor/extensions/      ← shared extension storage (both instances)
-~/.cursor-profile-personal/ ← curser's user-data-dir (personal account)
-~/.cursor/mcp.json         ← shared MCP server config (both instances)
-```
+The `dotbot`, `complete-alias`, `fzf`, and `starship-gruvbox-rainbow` directories are upstream Git submodules. Their committed gitlinks are the reviewable pins, although the current installer advances them to remote branch heads during bootstrap; correcting that non-reproducible behavior is a roadmap priority.
 
-1. `curser` merges `~/.config/Cursor/User/settings.json` with
-   `cursor-personal-overrides.json` using `jq`, producing a
-   standalone `settings.json` inside the personal data dir.
-2. Keybindings, snippets, and the extension registry are symlinked
-   from the default profile so changes propagate automatically.
-3. An `inotifywait` watcher re-merges settings if the base file changes
-   while curser is running.
+## Bootstrap
 
-### OAuth routing (when both instances are open)
+### Current support
 
-```text
-curser-oauth  →  touches ~/.cursor-oauth-route-to-personal  (flag)
-Browser       →  redirects to cursor://...
-XDG           →  calls cursor-uri-handler
-                  ├── flag present + fresh → route to curser (--open-url)
-                  └── no flag             → route to cursor (default)
-```
+| Path | Status | Notes |
+| --- | --- | --- |
+| Ubuntu/Linux interactive environment | Personal/operational | Primary environment; still host-coupled |
+| WSL | Partial | Several helpers assume WSL, but `win-install` is currently stale |
+| macOS | Unverified | No supported installation contract |
+| Native Windows | Unsupported | `win-install` is Bash and should not be interpreted as native Windows support |
 
-The flag auto-expires after 2 minutes to prevent stale misrouting.
+### Prerequisites used by the current installer
 
-### Dependencies
+- Bash, Git, and Python
+- `envsubst` (normally provided by `gettext`)
+- `curl`
+- Dotbot's Python requirements
+- `xdg-mime` and optionally `update-desktop-database` for Cursor URI registration
+- `gpgconf` for GPG-agent reload
 
-- `jq` — JSON merging for settings
-- `inotify-tools` — optional, for live settings re-merge
+The configured shell also integrates optional tools including FZF, Starship, jq, inotify-tools, direnv, NVM/Node, Go, GVM, Bun, pnpm, Rust, Homebrew, Pulumi, and cloud/Kubernetes CLIs. The installer does not provision all of them.
 
-## 🚀 Bootstrap
+### Safety and reproducibility warning
 
-**Prerequisites:**
-- Git
-- Python 3.10+
-- `pipx` (recommended) or `uv`
+The current `install` command:
+
+- deletes regular (non-symlink) versions of `~/.bashrc`, `~/.profile`, `~/.bash_logout`, and `~/.ssh/config` without creating backups;
+- runs `git submodule update --remote`, so installed dependency revisions can differ from the repository's committed pins;
+- executes remote Starship installation code through `curl | sh`;
+- must currently be invoked from the repository root because profile/template paths are resolved before the script changes directory.
+
+Review the script and back up existing configuration before running it. A preflight, backup, and dry-run workflow is planned.
+
+### Profile-aware invocation
 
 ```bash
 mkdir -p ~/code
-git clone https://github.com/pcuci/dotfiles.git ~/code/dotfiles
+git clone --recurse-submodules https://github.com/pcuci/dotfiles.git ~/code/dotfiles
 ln -s ~/code/dotfiles ~/.dotfiles
 cd ~/code/dotfiles
-./install
+./install [profile]
 ```
 
-`~/code/dotfiles` is the canonical checkout. The `~/.dotfiles` compatibility
-symlink preserves existing paths used by Dotbot and shell configuration.
-Governance capabilities are declared in `.agents/imports.json` and regenerated
-with `~/code/governance/scripts/onboard-governed-project.mjs`.
+The optional profile argument defaults to `default`:
 
-## 🛠️ Tooling Usage (`catp`)
+- `.env` supplies default values when present.
+- `.env.<profile>` supplies profile-specific values when present.
+- `.gitconfig.<profile>` is selected when present; otherwise `.gitconfig.default` is used.
+- `USE_NERD_FONT=true` controls whether the Starship configuration link is retained, although Starship installation is currently duplicated and not consistently gated.
 
-`catp` is a tool included in this suite to snapshot codebases for AI context.
+`~/code/dotfiles` is the canonical checkout. The `~/.dotfiles` compatibility symlink preserves paths used by Dotbot and shell configuration.
+
+## Cursor multi-profile setup
+
+Run two Cursor instances side by side with different accounts:
+
+| Instance | Login | Theme | Launched via |
+| --- | --- | --- | --- |
+| `cursor` | work/default | base settings | system launcher |
+| `curser` | personal | personal overrides | `curser` command |
+
+### Managed files
+
+| File | Purpose |
+| --- | --- |
+| `bin/curser` | Merges settings, links shared configuration, and starts Cursor with a personal `--user-data-dir` |
+| `bin/curser-oauth` | Arms a short-lived flag so the next OAuth callback routes to `curser` |
+| `bin/cursor-uri-handler` | XDG dispatcher for `cursor://` URIs |
+| `cursor-uri-handler.desktop` | Registers the dispatcher as the system URI handler |
+| `cursor-personal-overrides.json` | JSON merged over base settings on each personal launch |
+
+```text
+~/.config/Cursor/           default user data (work account)
+~/.cursor/extensions/       shared extension storage
+~/.cursor-profile-personal/ personal user data and account state
+~/.cursor/mcp.json          global MCP server configuration
+```
+
+MCP/plugin OAuth tokens remain in each profile's `User/globalStorage/state.vscdb`; they are account-specific and are not shared through `mcp.json`.
+
+Dependencies:
+
+- `jq` for settings merging
+- `inotifywait` from `inotify-tools` for optional live re-merging
+- Linux XDG desktop utilities for URI registration
+
+The current desktop entry contains an owner-specific absolute path, and the launcher links some Cursor internal state. Treat this integration as Linux- and Cursor-version-specific until those assumptions are removed under E4.
+
+## `catp`
+
+`catp` creates Git-aware repository manifests, file manifests, and full snapshots for LLM workflows.
+
+Current repository-local usage:
 
 ```bash
-# Install (Current: Phase 1 Pending)
-pip install -e tools/catp
-
-# Usage
-catp --help
-catp . --out context.txt
+cd ~/code/dotfiles
+./bin/catp --help
+./bin/catp --zoom repos --depth 2
+./bin/catp --zoom contents --out context.txt
 ```
 
-## 📜 License
+Independent package installation is **not currently supported**. The package metadata exists, but its setuptools discovery finds no installable package in the present layout, and no verified PyPI distribution exists. The root launcher works by adding this repository's `tools/` directory to `sys.path`. E5 owns completion of this product boundary.
 
-Ethically sourced under the [Atmosphere License](https://www.open-austin.org/atmosphere-license/).
+See [`tools/catp/README.md`](tools/catp/README.md) for the implemented CLI and current limitations.
+
+## Operational risk boundaries
+
+Some helpers are personal operational scripts rather than supported, safe-by-default products:
+
+- `bin/repo-sync.py` mutates branches and tags while constructing what appears to be a preview and can queue force pushes.
+- SSH host configuration contains `LocalCommand` hooks that can pull and execute dotfiles installation during connection setup.
+- `ssh_sync` mirrors SSH material with deletion and symlink following.
+- `bin/dockerd-start` exposes a privileged, non-TLS Docker daemon; removal is planned.
+
+Do not adopt these workflows on a new host without reviewing and redesigning their safety contracts. E1 tracks their removal or hardening; E2 tracks installer recovery and reproducibility.
+
+## Governance regeneration
+
+Governance capabilities are declared in `.agents/imports.json` and materialized from an external governance checkout. Generated symlinks are machine-layout-dependent. Use the governance project's onboarding/regeneration workflow after cloning this repository; the exact external path is not owned by this repository and should be documented by that project. E4 owns clarification of these tracked/generated/external boundaries.
+
+## License
+
+The repository root [`LICENSE`](LICENSE) currently contains **The Cosmic Coexistence License (CCxL), version 0.0.1**.
+
+`tools/catp/pyproject.toml` still declares MIT, which conflicts with the repository license. Package publication is blocked until the intended `catp` license is explicitly decided and all metadata is aligned.
