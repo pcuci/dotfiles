@@ -51,7 +51,7 @@ Avoid imperative logic (`if ! exists then curl...`) where possible.
 Every commit or major change must include:
 - **What:** Concise summary.
 - **Why:** Invariant justification (e.g., "To improve portability...").
-- **Verification:** Command run to verify the fix (e.g., `catp --help` or `./install --dry-run`).
+- **Verification:** Command run to verify the fix (e.g., `catp --help` or `bash -n install`).
 
 ---
 

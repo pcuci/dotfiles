@@ -128,12 +128,12 @@ E5 can proceed in parallel with E2–E4 once licensing is resolved. E6 is not a 
 
 **Primary invariants:** `Logos/Prudence`, `Logos/Elenchus`, `Praxis/Wisdom`.
 
-### E2.1 Deterministic inputs — Planned
+### E2.1 Deterministic inputs — In progress
 
-- [ ] Resolve `BASEDIR` before reading `.env`, profile, Git config, or template files.
-- [ ] Replace `export $(grep ... | xargs)` with a defined and validated profile contract.
-- [ ] Validate required commands, files, variables, platform, and selected profile before mutation.
-- [ ] Keep `install.conf.template.yaml` authoritative and `install.conf.yaml` generated.
+- [x] Resolve `BASEDIR` before reading `.env`, profile, Git config, or template files.
+- [x] Replace `export $(grep ... | xargs)` with explicit profile sourcing; default to the required `home` profile and reject missing profile files.
+- [ ] Validate required commands, files, variables, and platform before mutation.
+- [x] Keep `install.conf.template.yaml` authoritative and `install.conf.yaml` generated.
 
 ### E2.2 Preview and recovery — Planned
 
@@ -146,7 +146,7 @@ E5 can proceed in parallel with E2–E4 once licensing is resolved. E6 is not a 
 
 - [ ] Remove `--remote` from normal submodule installation and consume committed gitlinks.
 - [ ] Move submodule advancement into a separate explicit maintenance workflow.
-- [ ] Eliminate duplicate Starship installation ownership.
+- [x] Eliminate duplicate Starship installation ownership; `install` owns installation and Starship uses its built-in default prompt.
 - [ ] Replace unpinned `curl | sh` provisioning with versioned, integrity-checked inputs.
 - [ ] Decide whether `complete-alias` remains a submodule or is replaced by native completion.
 
@@ -161,7 +161,7 @@ E5 can proceed in parallel with E2–E4 once licensing is resolved. E6 is not a 
 
 - [ ] Test fresh-home installation in a disposable environment.
 - [ ] Test repeat installation with no unexpected changes.
-- [ ] Test profile selection and `USE_NERD_FONT` behavior.
+- [ ] Test default and explicit profile selection, including missing-profile rejection.
 - [ ] Verify bootstrap does not advance dependency revisions.
 
 ### Acceptance criteria

@@ -4,7 +4,7 @@
 
 **Governing Invariant:** `Ethos/Identity`
 
-**Verified snapshot:** 2026-08-04
+**Verified snapshot:** 2026-08-17
 
 A personal Linux/WSL configuration repository, bootstrap system, and tooling workspace. It is optimized for the owner's environment; it is not yet a portable, reproducible distribution for arbitrary hosts.
 
@@ -89,14 +89,15 @@ mkdir -p ~/code
 git clone --recurse-submodules https://github.com/pcuci/dotfiles.git ~/code/dotfiles
 ln -s ~/code/dotfiles ~/.dotfiles
 cd ~/code/dotfiles
-./install home
+./install
 ```
 
-The profile defaults to `home`, preventing a bare install from silently selecting the old minimal configuration and removing home-profile links. An explicit profile remains available for future or machine-specific configurations:
+The profile defaults to `home`, the only current bootstrap profile. An explicit profile may be supplied for a future or machine-specific configuration, but its `.env.<profile>` file must exist:
 
-- `.env` supplies default values when present.
-- `.env.<profile>` supplies profile-specific values when present.
+- `.env` optionally supplies shared defaults.
+- `.env.<profile>` is required and supplies profile-specific values; `.env.home` is the current profile.
 - `.gitconfig.<profile>` is selected when present; otherwise `.gitconfig.default` is used.
+- Repository inputs are resolved relative to the checkout, so `install` can also be launched from another working directory.
 - Starship is installed when missing and uses its built-in default prompt; the repository intentionally does not link a custom `starship.toml` or require a Nerd Font.
 
 `~/code/dotfiles` is the canonical checkout. The `~/.dotfiles` compatibility symlink preserves paths used by Dotbot and shell configuration.
