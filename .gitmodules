@@ -11,7 +11,3 @@
 	path = fzf
 	url = https://github.com/junegunn/fzf.git
 	branch = master
-[submodule "starship-gruvbox-rainbow"]
-	path = starship-gruvbox-rainbow
-	url = https://github.com/fang2hou/starship-gruvbox-rainbow
-	branch = main 

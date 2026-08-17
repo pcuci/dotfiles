@@ -12,7 +12,6 @@
     ~/.bash_completion: .bash_completion
     ~/.gitconfig: ${GITCONFIG_FILE}
     ~/.gitignore_global: .gitignore_global
-    ~/.config/starship.toml: starship-gruvbox-rainbow/starship.toml
     ~/.local/bin/dockerd-start:
       create: true
       path: bin/dockerd-start
@@ -58,11 +57,6 @@
         Installing submodules,
       ]
     - [~/.dotfiles/fzf/install --all, Installing fzf]
-    - [
-        if ! command -v starship &>/dev/null; then
-        curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y; fi,
-        Installing Starship locally if not already installed,
-      ]
     # Register curser's URI handler as the system default for cursor:// links.
     # This overrides Cursor's built-in handler so OAuth callbacks can be
     # routed to the correct instance (work vs personal) at runtime.

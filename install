@@ -1,50 +1,53 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 # Define variables
-PROFILE=${1:-default}
-ENV_FILE=".env"
-CUSTOM_ENV_FILE=".env.${PROFILE}"
-CONFIG_FILE="install.conf.yaml"
-TEMPLATE_FILE="install.conf.template.yaml"
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ $# -gt 1 ]]; then
+    echo "Usage: $0 [profile]" >&2
+    echo "Default profile: home" >&2
+    exit 2
+fi
+PROFILE="${1:-home}"
+ENV_FILE="${BASEDIR}/.env"
+CUSTOM_ENV_FILE="${BASEDIR}/.env.${PROFILE}"
+CONFIG_FILE="${BASEDIR}/install.conf.yaml"
+TEMPLATE_FILE="${BASEDIR}/install.conf.template.yaml"
 DIR_DOTBOT="dotbot"
 DIR_COMPLETE_ALIAS="complete-alias"
 DOTBOT_BIN="bin/dotbot"
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Load default (minimal) environment
 if [[ -f "$ENV_FILE" ]]; then
     echo "Loading default environment"
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
+    set -a
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
+    set +a
 fi
 
 # Load profile-specific environment
 if [[ -f "$CUSTOM_ENV_FILE" ]]; then
     echo "Loading profile: $PROFILE"
-    export $(grep -v '^#' "$CUSTOM_ENV_FILE" | xargs)
+    set -a
+    # shellcheck disable=SC1090
+    source "$CUSTOM_ENV_FILE"
+    set +a
 else
-    echo "No profile-specific environment found for $PROFILE. Proceeding with default."
+    echo "Error: profile-specific environment not found: $CUSTOM_ENV_FILE" >&2
+    exit 2
 fi
 
 # Ensure the GITCONFIG_FILE variable is defined
 GITCONFIG_FILE=".gitconfig.${PROFILE}"
-if [[ ! -f "$GITCONFIG_FILE" ]]; then
+if [[ ! -f "${BASEDIR}/${GITCONFIG_FILE}" ]]; then
     echo "Profile-specific .gitconfig not found. Using default."
     GITCONFIG_FILE=".gitconfig.default"
 fi
 export GITCONFIG_FILE="${GITCONFIG_FILE}"
 
-
-
-# Preprocess the YAML file to include or exclude Starship.toml dynamically
-if [[ "$USE_NERD_FONT" == "true" ]]; then
-    echo "Nerd Fonts enabled. Including Starship configuration."
-    envsubst < "$TEMPLATE_FILE" > "$CONFIG_FILE"
-else
-    echo "Nerd Fonts disabled. Excluding Starship configuration."
-    sed '/~\/\.config\/starship\.toml/d' "$TEMPLATE_FILE" | envsubst > "$CONFIG_FILE"
-fi
+envsubst < "$TEMPLATE_FILE" > "$CONFIG_FILE"
 
 # Install custom aliases
 echo "Installing custom aliases..."
@@ -82,8 +85,8 @@ git submodule update --init --recursive "${DIR_DOTBOT}"
 echo "Running Dotbot..."
 "${BASEDIR}/${DIR_DOTBOT}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG_FILE}"
 
-# Install Starship if necessary
-if [[ "$USE_NERD_FONT" == "true" && ! -x "$HOME/.local/bin/starship" ]]; then
+# Install Starship if necessary. With no starship.toml, Starship uses its built-in default prompt.
+if ! command -v starship >/dev/null 2>&1; then
     echo "Installing Starship..."
     curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y
 fi

@@ -33,7 +33,7 @@ The repository currently contains five domains:
    - `install.conf.template.yaml` is the source of truth; `install.conf.yaml` is generated and must not be edited.
 
 2. **Bootstrap**
-   - `install` loads an optional profile, generates Dotbot configuration, initializes dependencies, replaces selected home-directory files, and runs Dotbot.
+   - `install` loads the home profile by default (or an explicit profile), generates Dotbot configuration, initializes dependencies, replaces selected home-directory files, and runs Dotbot.
    - `win-install` is a legacy WSL-oriented helper and is not currently a supported bootstrap path.
 
 3. **Repository-local tooling**
@@ -48,7 +48,7 @@ The repository currently contains five domains:
    - `.agents/imports.json` is tracked.
    - Most `.agents/`, `.cursor/agents/`, `.cursor/skills/`, and `.claude/` content is generated or ignored and depends on an external governance checkout.
 
-The `dotbot`, `complete-alias`, `fzf`, and `starship-gruvbox-rainbow` directories are upstream Git submodules. Their committed gitlinks are the reviewable pins, although the current installer advances them to remote branch heads during bootstrap; correcting that non-reproducible behavior is a roadmap priority.
+The `dotbot`, `complete-alias`, and `fzf` directories are upstream Git submodules. Their committed gitlinks are the reviewable pins, although the current installer advances them to remote branch heads during bootstrap; correcting that non-reproducible behavior is a roadmap priority.
 
 ## Bootstrap
 
@@ -78,8 +78,7 @@ The current `install` command:
 
 - deletes regular (non-symlink) versions of `~/.bashrc`, `~/.profile`, `~/.bash_logout`, and `~/.ssh/config` without creating backups;
 - runs `git submodule update --remote`, so installed dependency revisions can differ from the repository's committed pins;
-- executes remote Starship installation code through `curl | sh`;
-- must currently be invoked from the repository root because profile/template paths are resolved before the script changes directory.
+- executes remote Starship installation code through `curl | sh` when Starship is not already installed.
 
 Review the script and back up existing configuration before running it. A preflight, backup, and dry-run workflow is planned.
 
@@ -90,15 +89,15 @@ mkdir -p ~/code
 git clone --recurse-submodules https://github.com/pcuci/dotfiles.git ~/code/dotfiles
 ln -s ~/code/dotfiles ~/.dotfiles
 cd ~/code/dotfiles
-./install [profile]
+./install home
 ```
 
-The optional profile argument defaults to `default`:
+The profile defaults to `home`, preventing a bare install from silently selecting the old minimal configuration and removing home-profile links. An explicit profile remains available for future or machine-specific configurations:
 
 - `.env` supplies default values when present.
 - `.env.<profile>` supplies profile-specific values when present.
 - `.gitconfig.<profile>` is selected when present; otherwise `.gitconfig.default` is used.
-- `USE_NERD_FONT=true` controls whether the Starship configuration link is retained, although Starship installation is currently duplicated and not consistently gated.
+- Starship is installed when missing and uses its built-in default prompt; the repository intentionally does not link a custom `starship.toml` or require a Nerd Font.
 
 `~/code/dotfiles` is the canonical checkout. The `~/.dotfiles` compatibility symlink preserves paths used by Dotbot and shell configuration.
 
