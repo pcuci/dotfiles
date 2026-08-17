@@ -162,6 +162,7 @@ E5 can proceed in parallel with E2–E4 once licensing is resolved. E6 is not a 
 - [ ] Test fresh-home installation in a disposable environment.
 - [ ] Test repeat installation with no unexpected changes.
 - [ ] Test default and explicit profile selection, including missing-profile rejection.
+- [ ] Expand ShellCheck coverage beyond the maintained installer after resolving legacy shell findings.
 - [ ] Verify bootstrap does not advance dependency revisions.
 
 ### Acceptance criteria

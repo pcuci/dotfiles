@@ -1,0 +1,39 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+        # catp is a distinct project; preserve its existing core.py mode until its packaging work owns the cleanup.
+        exclude: ^tools/catp/core\.py$
+      - id: check-shebang-scripts-are-executable
+        # Package CLI modules are invoked through Python entry points, not as standalone executables.
+        exclude: ^(tools/catp|projects/cat_project)/cli\.py$
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: check-toml
+      - id: debug-statements
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args: [-x, --severity=warning]
+        files: ^install$

@@ -70,6 +70,19 @@ The `dotbot`, `complete-alias`, and `fzf` directories are upstream Git submodule
 - `xdg-mime` and optionally `update-desktop-database` for Cursor URI registration
 - `gpgconf` for GPG-agent reload
 
+### Development checks
+
+Install `pre-commit` for repository hygiene and secret/shell checks during development.
+
+The hook configuration borrows the shared sibling-project baseline: whitespace and line-ending hygiene, conflict/YAML/JSON/TOML checks, executable and symlink consistency, large-file and private-key detection, Gitleaks, Python debug-statement detection, and ShellCheck for the maintained installer. Broader legacy shell linting remains separate cleanup work.
+
+Install the repository hook once after cloning:
+
+```bash
+pre-commit install
+pre-commit run
+```
+
 The configured shell also integrates optional tools including FZF, Starship, jq, inotify-tools, direnv, NVM/Node, Go, GVM, Bun, pnpm, Rust, Homebrew, Pulumi, and cloud/Kubernetes CLIs. The installer does not provision all of them.
 
 ### Safety and reproducibility warning
