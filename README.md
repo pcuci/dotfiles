@@ -64,7 +64,7 @@ The `dotbot`, `complete-alias`, and `fzf` directories are upstream Git submodule
 ### Prerequisites used by the current installer
 
 - Bash, Git, Python, and [`pre-commit`](https://pre-commit.com/)
-- `envsubst` (normally provided by `gettext`)
+- `envsubst` (Debian/Ubuntu: `gettext-base`; macOS Homebrew: `gettext`)
 - `curl`
 - Dotbot's Python requirements
 - `xdg-mime` and optionally `update-desktop-database` for Cursor URI registration

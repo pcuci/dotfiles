@@ -47,6 +47,11 @@ if [[ ! -f "${BASEDIR}/${GITCONFIG_FILE}" ]]; then
 fi
 export GITCONFIG_FILE="${GITCONFIG_FILE}"
 
+if ! command -v envsubst >/dev/null 2>&1; then
+    echo "Error: envsubst not found (needed to render install.conf.yaml from the template)." >&2
+    echo "Install gettext-base (Debian/Ubuntu: sudo apt install gettext-base) or gettext (macOS: brew install gettext)." >&2
+    exit 1
+fi
 envsubst < "$TEMPLATE_FILE" > "$CONFIG_FILE"
 
 # Install custom aliases
