@@ -5,7 +5,7 @@
 	branch = master
 [submodule "complete-alias"]
 	path = complete-alias
-	url = https://github.com/cykerway/complete-alias.git 
+	url = https://github.com/cykerway/complete-alias.git
 	branch = master
 [submodule "fzf"]
 	path = fzf

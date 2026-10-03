@@ -18,8 +18,8 @@ def resolve_alias(alias_name):
         alias_command = alias_output.split('=')[1].strip("'")
         base_command = alias_command.split()[0]
         abs_path_process = subprocess.run(
-            ["which", base_command], 
-            text=True, 
+            ["which", base_command],
+            text=True,
             capture_output=True
         )
         if abs_path_process.returncode == 0:
@@ -119,4 +119,3 @@ if __name__ == "__main__":
 
     youtube_url = sys.argv[1]
     outputs = pipeline.invoke(youtube_url)
-

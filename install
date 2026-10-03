@@ -96,28 +96,32 @@ if ! command -v starship >/dev/null 2>&1; then
     curl -fsSL https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y
 fi
 
-# Starship's default symbols use Nerd Font glyphs. Install JetBrainsMono Nerd Font when
-# missing so those icons render in terminals that use the system font. Fail soft.
-install_nerd_font_if_missing() {
+# Compare archive release metadata, not fontconfig's cache or the upstream font version.
+# Latest-release lookup and installation failures are nonfatal.
+install_nerd_font_if_outdated() {
     local font_family_query="JetBrainsMono Nerd Font"
     local font_dir="${HOME}/.local/share/fonts/NerdFonts/JetBrainsMono"
-    local release="v3.4.0"
-    local zip_url="https://github.com/ryanoasis/nerd-fonts/releases/download/${release}/JetBrainsMono.zip"
-    local tmp_zip
+    local releases_url="https://github.com/ryanoasis/nerd-fonts/releases"
+    local installed_release="" latest_url release zip_url tmp_dir
+    local release_pattern='^https://github\.com/ryanoasis/nerd-fonts/releases/tag/(v[0-9]+\.[0-9]+\.[0-9]+)$'
+    local metadata_pattern='s/^This is an archived font from the Nerd Fonts release (v[0-9]+\.[0-9]+\.[0-9]+)\.$/\1/p'
 
-    if command -v fc-list >/dev/null 2>&1; then
-        if fc-list : family 2>/dev/null | grep -Fqx "${font_family_query}" \
-            || fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font"; then
-            echo "Nerd Font already present (${font_family_query})."
-            return 0
-        fi
-    elif [[ -d "${font_dir}" ]] && compgen -G "${font_dir}/*.ttf" >/dev/null 2>&1; then
-        echo "Nerd Font files already present under ${font_dir}."
+    if [[ -f "${font_dir}/README.md" ]] && compgen -G "${font_dir}/*.ttf" >/dev/null 2>&1; then
+        installed_release="$(sed -nE "${metadata_pattern}" "${font_dir}/README.md")"
+    fi
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "Warning: curl missing; skipping Nerd Font update check." >&2
         return 0
     fi
-
-    if ! command -v curl >/dev/null 2>&1; then
-        echo "Warning: curl missing; skipping Nerd Font install." >&2
+    if ! latest_url="$(curl -fsSL --connect-timeout 5 --max-time 20 \
+        -o /dev/null -w '%{url_effective}' "${releases_url}/latest")" \
+        || [[ ! "${latest_url}" =~ $release_pattern ]]; then
+        echo "Warning: could not determine latest Nerd Font release; leaving installed fonts unchanged." >&2
+        return 0
+    fi
+    release="${BASH_REMATCH[1]}"
+    if [[ "${installed_release}" == "${release}" ]]; then
+        echo "Nerd Font already at latest release (${font_family_query}, ${release})."
         return 0
     fi
     if ! command -v unzip >/dev/null 2>&1; then
@@ -125,20 +129,39 @@ install_nerd_font_if_missing() {
         return 0
     fi
 
+    zip_url="${releases_url}/download/${release}/JetBrainsMono.zip"
     echo "Installing ${font_family_query} (${release}) for Starship icons..."
-    tmp_zip="$(mktemp "${TMPDIR:-/tmp}/JetBrainsMono-XXXXXX.zip")"
-    if ! curl -fsSL -o "${tmp_zip}" "${zip_url}"; then
+    if ! tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/JetBrainsMono-XXXXXX")"; then
+        echo "Warning: could not create temporary Nerd Font directory; continuing." >&2
+        return 0
+    fi
+    if ! curl -fsSL --connect-timeout 5 --max-time 120 -o "${tmp_dir}/font.zip" "${zip_url}"; then
         echo "Warning: failed to download Nerd Font from ${zip_url}; continuing." >&2
-        rm -f "${tmp_zip}"
+        rm -rf "${tmp_dir}"
         return 0
     fi
-    mkdir -p "${font_dir}"
-    if ! unzip -o -q "${tmp_zip}" -d "${font_dir}"; then
+    if ! unzip -q "${tmp_dir}/font.zip" -d "${tmp_dir}/fonts"; then
         echo "Warning: failed to extract Nerd Font archive; continuing." >&2
-        rm -f "${tmp_zip}"
+        rm -rf "${tmp_dir}"
         return 0
     fi
-    rm -f "${tmp_zip}"
+    if [[ ! -f "${tmp_dir}/fonts/README.md" ]] \
+        || ! compgen -G "${tmp_dir}/fonts/*.ttf" >/dev/null 2>&1 \
+        || [[ "$(sed -nE "${metadata_pattern}" "${tmp_dir}/fonts/README.md")" != "${release}" ]]; then
+        echo "Warning: Nerd Font archive has missing or mismatched release metadata/fonts; continuing." >&2
+        rm -rf "${tmp_dir}"
+        return 0
+    fi
+    # Publish the release metadata last so failed copies remain eligible for retry.
+    if ! mv "${tmp_dir}/fonts/README.md" "${tmp_dir}/README.md" \
+        || ! mkdir -p "${font_dir}" \
+        || ! cp -R "${tmp_dir}/fonts/." "${font_dir}/" \
+        || ! cp "${tmp_dir}/README.md" "${font_dir}/README.md"; then
+        echo "Warning: failed to install Nerd Font files; continuing." >&2
+        rm -rf "${tmp_dir}"
+        return 0
+    fi
+    rm -rf "${tmp_dir}"
     if command -v fc-cache >/dev/null 2>&1; then
         fc-cache -f "${HOME}/.local/share/fonts" >/dev/null 2>&1 || true
     fi
@@ -146,6 +169,6 @@ install_nerd_font_if_missing() {
     echo "Point your terminal font at '${font_family_query}' (or another Nerd Font) if icons still show as missing glyphs."
 }
 
-install_nerd_font_if_missing
+install_nerd_font_if_outdated
 
 echo "Dotfiles setup complete!"

@@ -229,7 +229,7 @@ def copy_file_to_clipboard(file_path: Path, *, timeout_s: float = 10.0, enable_o
     except Exception as e:
         log.warning("⚠️  Cannot read %s for fallback copy: %s", file_path, e)
         return False
-    
+
     return copy_text_to_clipboard(content, timeout_s=timeout_s, enable_osc52=enable_osc52)
 
 # ---- Legacy name (backwards compatibility) ----

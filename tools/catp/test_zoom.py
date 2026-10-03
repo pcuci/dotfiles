@@ -349,7 +349,7 @@ class TestOnlyOrSemantics:
         """Verify argparse accumulates repeated --only flags."""
         from .cli import parse_args
         import sys
-        
+
         # Simulate: catp --only "backend*" --only frontend
         old_argv = sys.argv
         try:
@@ -413,7 +413,7 @@ class TestExcludeOrSemantics:
         """Verify argparse accumulates repeated --exclude flags."""
         from .cli import parse_args
         import sys
-        
+
         old_argv = sys.argv
         try:
             sys.argv = ["catp", "--exclude", "backend*", "--exclude", "frontend"]
@@ -430,8 +430,8 @@ class TestExcludeOrSemantics:
         deep = tmp_path / "excluded" / "deep" / "nested"
         deep.mkdir(parents=True)
         (deep / ".git").mkdir()
-        
-        # Create: kept/repo  
+
+        # Create: kept/repo
         kept = tmp_path / "kept"
         kept.mkdir()
         (kept / ".git").mkdir()

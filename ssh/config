@@ -4,9 +4,9 @@ Include config.d/*
 Host *
   IdentityAgent ~/.1password/agent.sock
 
-Host mass 
-  HostName mass.lan 
-  User paul 
+Host mass
+  HostName mass.lan
+  User paul
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
@@ -14,15 +14,15 @@ Host mass
   IdentityFile ~/.ssh/id_ed25519
 
 Host mass-r
-  HostName mass.lan 
-  User paul 
+  HostName mass.lan
+  User paul
   AddKeysToAgent yes
   PermitLocalCommand yes
   IdentityFile ~/.ssh/id_ed25519
 
-Host code 
-  HostName code.lan 
-  User paul 
+Host code
+  HostName code.lan
+  User paul
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files
@@ -30,8 +30,8 @@ Host code
   IdentityFile ~/.ssh/id_ed25519
 
 Host code-r
-  HostName code.lan 
-  User paul 
+  HostName code.lan
+  User paul
   RequestTTY force
   RemoteCommand bash
   AddKeysToAgent yes
@@ -43,9 +43,9 @@ Host router
   User root
   IdentityFile ~/.ssh/id_ed25519
 
-Host cbackup 
+Host cbackup
   HostName backup0.lan
-  User christina 
+  User christina
   AddKeysToAgent yes
   PermitLocalCommand yes
   # Unfortunately ssh does not support line breaks in config files

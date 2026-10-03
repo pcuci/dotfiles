@@ -58,7 +58,7 @@ def find_git_repo_roots(
 ) -> list[Path]:
     """
     Find Git repository roots up to max_depth.
-    
+
     Applies unified filtering:
     - If only_patterns provided, repo must match at least one
     - If exclude_patterns provided, repo is dropped if any match
@@ -102,18 +102,18 @@ def find_git_repo_roots(
                     if child.is_dir() and child.resolve() not in visited_dirs:
                         if child.name in GLOB_EXCLUDE_DIRS:
                             continue
-                        
+
                         # Calculate child's relative path
                         try:
                             child_rel = child.relative_to(start_path)
                         except ValueError:
                             child_rel = Path(child.name)
-                        
+
                         # Pruning: don't descend into excluded subtrees
                         if should_exclude_subtree(child_rel, exclude_set):
                             log.debug(f"[{child_rel}] PRUNE: Subtree excluded, not descending.")
                             continue
-                        
+
                         visited_dirs.add(child.resolve())
                         queue.append((child.resolve(), depth + 1))
             except OSError as e:
@@ -184,7 +184,7 @@ def collect(
     """Collect files, returning kept and skipped files."""
     kept_files: dict[Path, Path] = {}
     skipped_large: list[tuple[Path, int]] = []
-    
+
     active_exclude_patterns = set(EXCLUDE_FILE_PATTERNS)
     if allow_patterns:
         log.debug(f"Disabling default excludes: {allow_patterns}")
@@ -196,7 +196,7 @@ def collect(
 
     include_patterns = set(only_patterns) if only_patterns else set(GLOB_INCLUDE)
     scoped_paths = [p.resolve() for p in paths] if paths else []
-    
+
     all_git_files = []
     for repo_root in repo_roots:
         log.info(f"ℹ️  Scanning Git repository at {repo_root}...")
@@ -207,9 +207,9 @@ def collect(
             except ValueError:
                 p_display = p_abs
             all_git_files.append((p_abs, p_display))
-            
+
     total_files = len(all_git_files)
-    
+
     for p_abs, p_display in all_git_files:
         if not p_abs.is_file():
             continue
@@ -224,7 +224,7 @@ def collect(
         if scoped_paths and not any(p_abs.is_relative_to(sp) for sp in scoped_paths):
             log.debug(f"[{p_display}] SKIP: Not in specified paths.")
             continue
-        
+
         if not matches_any(p_display, include_patterns):
             log.debug(f"[{p_display}] SKIP: Does not match include pattern.")
             continue
@@ -294,18 +294,18 @@ def _build_repo_tree(
             connector = "└─ " if is_last_item else "├─ "
             is_repo = subtree.get("__is_repo__", False)
             marker = "✓ repo" if is_repo else ""
-            
+
             # Check if this is a directory (has children other than __is_repo__)
             has_children = any(k != "__is_repo__" for k in subtree.keys())
             suffix = "/" if has_children or (not is_repo and not has_children) else ""
             if is_repo and not has_children:
                 suffix = "/"
-            
+
             line = f"{prefix}{connector}{name}{suffix}"
             if marker:
                 line = f"{line.ljust(40)} {marker}"
             lines.append(line)
-            
+
             if has_children:
                 extension = "   " if is_last_item else "│  "
                 lines.extend(render_tree(subtree, prefix + extension, is_last_item))

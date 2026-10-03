@@ -83,6 +83,12 @@ pre-commit install
 pre-commit run
 ```
 
+Run the isolated Nerd Font installer regression tests without changing host fonts or making network requests:
+
+```bash
+python3 -m unittest discover -s bin -p test_install_nerd_font.py -v
+```
+
 The configured shell also integrates optional tools including FZF, Starship, jq, inotify-tools, direnv, NVM/Node, Go, GVM, Bun, pnpm, Rust, Homebrew, Pulumi, and cloud/Kubernetes CLIs. The installer does not provision all of them.
 
 ### Safety and reproducibility warning
@@ -91,7 +97,7 @@ The current `install` command:
 
 - deletes regular (non-symlink) versions of `~/.bashrc`, `~/.profile`, `~/.bash_logout`, and `~/.ssh/config` without creating backups;
 - executes remote Starship installation code through `curl | sh` when Starship is not already installed;
-- downloads JetBrainsMono Nerd Font from GitHub releases when that font family is not already installed.
+- checks GitHub's latest Nerd Fonts release and downloads JetBrainsMono Nerd Font when the managed font files or their archive release metadata are missing or outdated.
 
 Review the script and back up existing configuration before running it. A preflight, backup, and dry-run workflow is planned.
 
@@ -121,7 +127,7 @@ The profile defaults to `home`, the only current bootstrap profile. An explicit 
 - `.env.<profile>` is required and supplies profile-specific values; `.env.home` is the current profile.
 - `.gitconfig.<profile>` is selected when present; otherwise `.gitconfig.default` is used.
 - Repository inputs are resolved relative to the checkout, so `install` can also be launched from another working directory.
-- Starship is installed when missing and uses its built-in default prompt; the repository does not link a custom `starship.toml`. When a Nerd Font is missing, `install` downloads JetBrainsMono Nerd Font into `~/.local/share/fonts` (fail soft) so default Starship glyphs can render. Configure the terminal to use that font (or another Nerd Font); remote viewers that ship their own font may still show missing glyphs.
+- Starship is installed when missing and uses its built-in default prompt; the repository does not link a custom `starship.toml`. `install` checks GitHub's latest Nerd Fonts release and compares it with the archive release recorded in `~/.local/share/fonts/NerdFonts/JetBrainsMono/README.md`. Matching metadata plus `.ttf` files skips the download, independent of the Fontconfig cache. Missing or outdated managed fonts trigger an install/update; an unversioned installation is refreshed once. Lookup, download, and extraction failures are nonfatal and leave existing fonts unchanged. Each run still needs network access to check the latest release. Configure the terminal to use 'JetBrainsMono Nerd Font' (or another Nerd Font); remote viewers that ship their own font may still show missing glyphs.
 
 `~/code/dotfiles` is the canonical checkout. The `~/.dotfiles` compatibility symlink preserves paths used by Dotbot and shell configuration.
 
