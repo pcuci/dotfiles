@@ -6,6 +6,36 @@ Host agent-vm-swe
   ServerAliveInterval 30
   ServerAliveCountMax 3
 
+Host agent-vm-swe-ssm
+  HostName i-09c4ea259b109c569
+  User swe
+  IdentityFile ~/.ssh/id_ed25519_passphraseless
+  IdentitiesOnly yes
+  ControlMaster auto
+  ControlPath ~/.ssh/control-agent-vm-swe-ssm-%p
+  ControlPersist 10m
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  ProxyCommand bash -lc 'source /home/paul/code/jetscale/agents-vm/scripts/preflight.sh >/dev/null && aws ssm start-session --region us-east-1 --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'
+
+Host agent-vm-swe-tunnels
+  HostName i-09c4ea259b109c569
+  User swe
+  IdentityFile ~/.ssh/id_ed25519_passphraseless
+  IdentitiesOnly yes
+  LocalForward 13773 127.0.0.1:3773
+  LocalForward 20450 127.0.0.1:10450
+  LocalForward 13000 127.0.0.1:3000
+  LocalForward 18000 127.0.0.1:8000
+  LocalForward 15432 127.0.0.1:5432
+  ExitOnForwardFailure yes
+  ControlMaster auto
+  ControlPath ~/.ssh/control-agent-vm-swe-tunnels-%p
+  ControlPersist 10m
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  ProxyCommand bash -lc 'source /home/paul/code/jetscale/agents-vm/scripts/preflight.sh >/dev/null && aws ssm start-session --region us-east-1 --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'
+
 Host agent-vm-cursor
   HostName i-0d3b9d0d4bb26d782
   User cursor
