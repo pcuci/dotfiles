@@ -50,6 +50,7 @@
     ~/.gnupg/gpg-agent.conf:
       path: gnupg/gpg-agent.conf
       create: true
+      backup: true
 
 - shell:
     - [
