@@ -50,3 +50,7 @@ Host ubuntu-gpu
   User paul
   IdentityFile ~/.ssh/id_ed25519_passphraseless
   IdentitiesOnly yes
+
+Host framework
+  IdentityFile ~/.ssh/id_ed25519_passphraseless
+  IdentitiesOnly yes
