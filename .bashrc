@@ -24,11 +24,12 @@ export GOPATH=$HOME/go
 export WIN_IP=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf)
 
 export BUN_INSTALL="$HOME/.bun"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 
 # Add custom paths to PATH
 paths_to_add=(
   "$HOME/.local/bin"
-  "$HOME/.local/share/pnpm"
+  "$PNPM_HOME/bin"
   "$HOME/.pulumi/bin"
   "${KREW_ROOT:-$HOME/.krew}/bin"
   "$HOME/.linkerd2/bin"
@@ -120,13 +121,6 @@ export PYTHONUTF8=1
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
-# pnpm
-export PNPM_HOME="/home/paul/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
 # BEGIN ANSIBLE MANAGED BLOCK
 # Created by markosamuli.gcloud Ansible role
 if [ -d "$HOME/google-cloud-sdk" ]; then
